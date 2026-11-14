@@ -1,0 +1,51 @@
+services:
+  mlflow:
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM python:3.12-slim
+        RUN pip install --no-cache-dir "mlflow>=3.0,<4"
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri sqlite:////mlflow/mlflow.db
+      --artifacts-destination /mlflow/artifacts --serve-artifacts
+    environment:
+      # Newer MLflow validates the Host header; allow the compose service name.
+      MLFLOW_SERVER_ALLOWED_HOSTS: "*"
+    ports: ["5000:5000"]
+    volumes: ["mlflow-data:/mlflow"]
+
+  airflow:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.airflow
+    depends_on: [mlflow]
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - >
+        echo "{\"$$AIRFLOW_USERNAME\": \"$$AIRFLOW_PASSWORD\"}" > /opt/airflow/passwords.json &&
+        exec airflow standalone
+    environment:
+      AIRFLOW_USERNAME: ${AIRFLOW_USERNAME:-admin}
+      AIRFLOW_PASSWORD: ${AIRFLOW_PASSWORD:?set AIRFLOW_PASSWORD in .env}
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/repo/dags
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: ${AIRFLOW_USERNAME:-admin}:admin
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/passwords.json
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_EXPERIMENT: mlops-agent-demo
+      PYTHONPATH: /opt/airflow/repo
+      REPO_ROOT: /opt/airflow/repo
+      WORK_DIR: /opt/airflow/work
+      # let git read the bind-mounted repo regardless of file ownership
+      GIT_CONFIG_COUNT: "1"
+      GIT_CONFIG_KEY_0: safe.directory
+      GIT_CONFIG_VALUE_0: "*"
+    ports: ["8080:8080"]
+    volumes:
+      - ./:/opt/airflow/repo
+      - airflow-work:/opt/airflow/work
+
+volumes:
+  mlflow-data:
+  airflow-work:

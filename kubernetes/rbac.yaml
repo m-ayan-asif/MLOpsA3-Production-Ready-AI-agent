@@ -1,0 +1,34 @@
+# Least-privilege identity for the agent: read-only on workloads, patch on deployments,
+# confined to one namespace. Use this ServiceAccount's token for the agent's kubeconfig.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: mlops-agent
+  namespace: mlops-agent
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: mlops-agent
+  namespace: mlops-agent
+rules:
+  - apiGroups: [""]
+    resources: [pods, pods/log, services, endpoints, events, configmaps]
+    verbs: [get, list]
+  - apiGroups: ["apps"]
+    resources: [deployments]
+    verbs: [get, list, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: mlops-agent
+  namespace: mlops-agent
+subjects:
+  - kind: ServiceAccount
+    name: mlops-agent
+    namespace: mlops-agent
+roleRef:
+  kind: Role
+  name: mlops-agent
+  apiGroup: rbac.authorization.k8s.io

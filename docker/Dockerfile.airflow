@@ -1,0 +1,9 @@
+ARG AIRFLOW_VERSION=3.1.0
+FROM apache/airflow:${AIRFLOW_VERSION}
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+USER airflow
+# Training deps used by the DAG tasks. If pip reports a conflict with Airflow's own
+# pins, install with the matching constraints file for your Airflow/Python version.
+RUN pip install --no-cache-dir "mlflow-skinny>=3.0" scikit-learn pyyaml
