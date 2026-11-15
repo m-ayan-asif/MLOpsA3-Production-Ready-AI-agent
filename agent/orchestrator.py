@@ -2,6 +2,7 @@
 final answer is wrapped with deterministic evidence and failure notices."""
 from __future__ import annotations
 
+import re
 import uuid
 from typing import Any
 
@@ -36,13 +37,24 @@ quality gate, or degradation results the user supplied. Use assess_retraining_ne
 need, gather evidence from MLflow, DVC, Kubernetes and Airflow. Retrieve DVC provenance tied to the \
 selected MLflow run; current workspace dataset state is not a substitute. Check the actual state of \
 the latest relevant Airflow training run; listing DAG definitions is not a status check. If any of \
-these results is missing, continue gathering evidence before answering. MLflow's DVC tags alone do \
-not count as a DVC lookup. This assessment is read-only.
+these sources has not yet been queried, continue gathering evidence before answering. If a source \
+was queried but failed, do not keep retrying it solely to satisfy completeness; state the gap and \
+answer from the remaining evidence. MLflow's DVC tags alone do not count as a DVC lookup. This \
+assessment is read-only.
 Be concise."""
 
 MAX_STEPS = 8
-_MANDATORY_ASSESSMENT = (
-    "best recent model", "dataset version", "deployment status", "retraining",
+_MANDATORY_ASSESSMENT_INTENTS = (
+    ("model", "models"),
+    ("best", "top", "top-performing", "highest", "strongest", "recent", "latest"),
+    ("dataset", "data"),
+    ("version", "release", "provenance", "trained", "training"),
+    ("deployment", "deploy", "deployed", "serving", "inference", "live"),
+    ("status", "state", "healthy", "health", "ready", "running", "deployed", "live",
+     "serving", "available", "operational"),
+    ("retrain", "retraining", "retrained", "train again", "train it again",
+     "re-train", "re-training", "training again", "rerun training", "re-run training",
+     "should train", "need to train", "training needed", "training necessary"),
 )
 _MANDATORY_EVIDENCE = (
     ("mlflow_best_run", "a best-run evaluation from MLflow"),
@@ -53,12 +65,19 @@ _MANDATORY_EVIDENCE = (
 )
 
 
-def _missing_mandatory_evidence(message: str, results: list[ToolResult]) -> list[str]:
+def _is_mandatory_assessment(message: str) -> bool:
     normalized = " ".join(message.casefold().split())
-    if not all(marker in normalized for marker in _MANDATORY_ASSESSMENT):
+    return all(
+        any(re.search(rf"\b{re.escape(marker)}\b", normalized) for marker in intent)
+        for intent in _MANDATORY_ASSESSMENT_INTENTS
+    )
+
+
+def _missing_unattempted_evidence(message: str, results: list[ToolResult]) -> list[str]:
+    if not _is_mandatory_assessment(message):
         return []
-    successful = {result.tool for result in results if result.ok}
-    return [label for tool, label in _MANDATORY_EVIDENCE if tool not in successful]
+    attempted = {result.tool for result in results}
+    return [label for tool, label in _MANDATORY_EVIDENCE if tool not in attempted]
 
 
 class Orchestrator:
@@ -73,6 +92,7 @@ class Orchestrator:
         messages: list[dict[str, Any]] = [{"role": "user", "text": message}]
         results: list[ToolResult] = []
         final: str | None = None
+        incomplete_evidence: list[str] = []
         steps = 0
 
         log_event("agent_request", request_id=rid, confirm=confirm, message_chars=len(message))
@@ -81,7 +101,7 @@ class Orchestrator:
             turn = self.llm.generate(SYSTEM_PROMPT, messages, specs)
             messages.append({"role": "model", "text": turn.text, "raw": turn.raw})
             if not turn.tool_calls:
-                missing = _missing_mandatory_evidence(message, results)
+                missing = _missing_unattempted_evidence(message, results)
                 if missing and step < self.max_steps:
                     messages.append({
                         "role": "user",
@@ -92,9 +112,7 @@ class Orchestrator:
                     })
                     continue
                 if missing:
-                    final = "I could not complete this assessment because I did not obtain: " \
-                            + "; ".join(missing) + "."
-                    break
+                    incomplete_evidence = missing
                 final = turn.text or ""
                 break
             batch: list[tuple[str, dict[str, Any]]] = []
@@ -105,10 +123,11 @@ class Orchestrator:
             messages.append({"role": "tool", "results": batch})
         if final is None:
             final = "I stopped before finishing: the step limit was reached."
+            incomplete_evidence = _missing_unattempted_evidence(message, results)
 
         failures = [f"{r.tool}: {r.status}" + (f" ({r.error})" if r.error else "")
                     for r in results if not r.ok]
-        answer = self._grounded(final, results, failures)
+        answer = self._grounded(final, results, failures, incomplete_evidence)
         log_event("agent_response", request_id=rid, steps=steps, tool_calls=len(results),
                   failures=len(failures))
         return AgentResult(
@@ -117,7 +136,8 @@ class Orchestrator:
                                   duration_ms=r.duration_ms, error=r.error) for r in results])
 
     @staticmethod
-    def _grounded(final: str, results: list[ToolResult], failures: list[str]) -> str:
+    def _grounded(final: str, results: list[ToolResult], failures: list[str],
+                  incomplete_evidence: list[str] | None = None) -> str:
         notices = []
         if not results:
             notices.append("No tools were called, so nothing below is backed by operational "
@@ -125,6 +145,9 @@ class Orchestrator:
         if failures:
             notices.append("These tool calls did not succeed, so related facts are NOT verified: "
                            + "; ".join(failures))
+        if incomplete_evidence:
+            notices.append("This assessment is incomplete because these required evidence sources "
+                           "were not called: " + "; ".join(incomplete_evidence))
         if not notices:
             return final
         return "\u26a0\ufe0f " + " ".join(notices) + "\n\n" + final

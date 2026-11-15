@@ -2,7 +2,7 @@
 
 ## Generated evidence summaries
 
-The numbered PNGs `01_live_stack_status.png` through `04_failure_investigations.png` are programmatically rendered from captured `/chat` JSON and live service status. They are not pixel captures of the Airflow, MLflow, browser, or terminal UI.
+The numbered PNGs `01_live_stack_status.png` through `04_failure_investigations.png` are programmatically rendered from captured `/chat` JSON and live service status. `02_multi_tool_conversation.png` is generated from the exact mandatory prompt and successful four-system trace in `../conversations/01_multi_tool.json`. These summaries are not pixel captures of the Airflow, MLflow, browser, or terminal UI.
 
 ## Authentic application and terminal captures
 

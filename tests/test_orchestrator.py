@@ -60,14 +60,61 @@ def test_mandatory_scenario_continues_when_dvc_provenance_is_missing(stub_tool):
     ])
 
     result = Orchestrator(llm).run(
-        "Find the best recent model, identify the dataset version used to train it, "
-        "check the deployment status, and explain whether retraining is necessary.")
+        "Which model performed best lately, what training-data release did it use, "
+        "is it serving, and should we re-train?")
 
     assert result.answer == "All required evidence is now available."
     assert [trace.tool for trace in result.tool_trace] == [
         "mlflow_best_run", "k8s_get_deployed_version", "airflow_latest_run_summary",
         "assess_retraining_need", "dvc_get_run_dataset",
     ]
+
+
+def test_mandatory_scenario_keeps_partial_answer_when_kubernetes_fails(stub_tool):
+    def down(**kw):
+        raise ConnectionError("connection refused")
+
+    stub_tool("mlflow_best_run", lambda **kw: {"best": {"run_id": "r1"}})
+    stub_tool("dvc_get_run_dataset", lambda **kw: {"dataset.version": "dataset-v1.1"})
+    stub_tool("k8s_get_deployed_version", down)
+    stub_tool("airflow_latest_run_summary", lambda **kw: {"latest_run": {"state": "success"}})
+    stub_tool("assess_retraining_need", lambda **kw: {"retraining_recommended": False})
+    llm = FakeLLM([
+        [ToolCall("mlflow_best_run"),
+         ToolCall("dvc_get_run_dataset", {"reference": "r1"}),
+         ToolCall("k8s_get_deployed_version"),
+         ToolCall("airflow_latest_run_summary", {"dag_id": "ml_training_pipeline"}),
+         ToolCall("assess_retraining_need", {"run_id": "r1"})],
+        "Known facts: the selected run is r1. Uncertainties: Kubernetes status is unavailable.",
+    ])
+
+    result = Orchestrator(llm).run(
+        "Find the best recent model, identify the dataset version used to train it, check the "
+        "deployment status, and explain whether retraining is necessary.")
+
+    assert result.steps == 2
+    assert result.tool_failures and "k8s_get_deployed_version" in result.tool_failures[0]
+    assert "Known facts: the selected run is r1." in result.answer
+    assert "Uncertainties: Kubernetes status is unavailable." in result.answer
+    assert "NOT verified" in result.answer
+
+
+def test_mandatory_scenario_preserves_answer_when_step_limit_leaves_tools_unattempted(
+        stub_tool):
+    stub_tool("mlflow_best_run", lambda **kw: {"best": {"run_id": "r1"}})
+    llm = FakeLLM([
+        calls("mlflow_best_run"),
+        "The best recent model is r1, but the rest of the assessment is incomplete.",
+    ])
+
+    result = Orchestrator(llm, max_steps=2).run(
+        "Find the best recent model, identify the dataset version used to train it, check the "
+        "deployment status, and explain whether retraining is necessary.")
+
+    assert result.answer.endswith(
+        "The best recent model is r1, but the rest of the assessment is incomplete.")
+    assert "required evidence sources were not called" in result.answer
+    assert "DVC provenance for the selected run" in result.answer
 
 
 def test_agent_does_not_invent_results_when_a_tool_is_down(stub_tool):

@@ -11,4 +11,4 @@
 - [Screenshots](./screenshots/) — generated evidence summaries and authentic Airflow, MLflow, Kubernetes, DVC, and agent/API captures. The Swagger chat captures show a narrower Kubernetes/MLflow request, not the mandatory four-system scenario.
 - [Hosted GitHub Actions run](https://github.com/m-ayan-asif/MLOpsA3-Production-Ready-AI-agent/actions/runs/43697872583) — passed for commit `ea06ab0`; it runs Ruff and pytest.
 
-The exact-prompt agent, test, and conversation updates were pushed in `ea06ab0`, and the hosted CI run above passed. This README/report status refresh follows that verification.
+The exact-prompt agent, test, and conversation updates in `ea06ab0` passed the hosted run above. Follow-up review fixes to the evidence guard and conversation summary are local and are not covered by that run yet.
