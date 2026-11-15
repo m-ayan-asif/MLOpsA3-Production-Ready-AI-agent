@@ -1,0 +1,22 @@
+schema: '2.0'
+stages:
+  train:
+    cmd: python -m training.train --export models/model.joblib
+    deps:
+    - path: data/dataset.csv
+      hash: md5
+      md5: fca8d29f55d3bb4293b10d4935173c34
+      size: 297979
+    - path: training/steps.py
+      hash: md5
+      md5: e793ab8184340b7ee72fdb878c99af7f
+      size: 6426
+    - path: training/train.py
+      hash: md5
+      md5: b97830e45e33bf0646b9c66fe841478d
+      size: 1683
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: 7d33ea7b9c5d53c4830f3153ec1d416a
+      size: 381113

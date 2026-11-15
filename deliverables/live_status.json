@@ -1,0 +1,1280 @@
+{
+  "agent": {
+    "http": 200,
+    "body": {
+      "status": "ok"
+    }
+  },
+  "mlflow": {
+    "http": 200,
+    "body": "OK"
+  },
+  "airflow": {
+    "http": 200,
+    "body": {
+      "metadatabase": {
+        "status": "healthy"
+      },
+      "scheduler": {
+        "status": "healthy",
+        "latest_scheduler_heartbeat": "2026-11-14T18:27:45.336709+00:00"
+      },
+      "triggerer": {
+        "status": "healthy",
+        "latest_triggerer_heartbeat": "2026-11-14T18:27:44.627393+00:00"
+      },
+      "dag_processor": {
+        "status": "healthy",
+        "latest_dag_processor_heartbeat": "2026-11-14T18:27:44.377115+00:00"
+      }
+    }
+  },
+  "nodes": {
+    "apiVersion": "v1",
+    "items": [
+      {
+        "apiVersion": "v1",
+        "kind": "Node",
+        "metadata": {
+          "annotations": {
+            "node.alpha.kubernetes.io/ttl": "0",
+            "volumes.kubernetes.io/controller-managed-attach-detach": "true"
+          },
+          "creationTimestamp": "2026-11-14T16:08:20Z",
+          "labels": {
+            "beta.kubernetes.io/arch": "amd64",
+            "beta.kubernetes.io/os": "linux",
+            "kubernetes.io/arch": "amd64",
+            "kubernetes.io/hostname": "mlops-control-plane",
+            "kubernetes.io/os": "linux",
+            "node-role.kubernetes.io/control-plane": ""
+          },
+          "name": "mlops-control-plane",
+          "resourceVersion": "12334",
+          "uid": "cf12a6df-ad4d-422c-ba47-160c518f5670"
+        },
+        "spec": {
+          "podCIDR": "10.244.0.0/24",
+          "podCIDRs": [
+            "10.244.0.0/24"
+          ],
+          "providerID": "kind://docker/mlops/mlops-control-plane"
+        },
+        "status": {
+          "addresses": [
+            {
+              "address": "172.20.0.2",
+              "type": "InternalIP"
+            },
+            {
+              "address": "mlops-control-plane",
+              "type": "Hostname"
+            }
+          ],
+          "allocatable": {
+            "cpu": "12",
+            "ephemeral-storage": "1081101176832",
+            "hugepages-1Gi": "0",
+            "hugepages-2Mi": "0",
+            "memory": "24027780Ki",
+            "pods": "110"
+          },
+          "capacity": {
+            "cpu": "12",
+            "ephemeral-storage": "1081101176832",
+            "hugepages-1Gi": "0",
+            "hugepages-2Mi": "0",
+            "memory": "24027780Ki",
+            "pods": "110"
+          },
+          "conditions": [
+            {
+              "lastHeartbeatTime": "2026-11-14T18:23:37Z",
+              "lastTransitionTime": "2026-11-14T16:08:20Z",
+              "message": "kubelet has sufficient memory available",
+              "reason": "KubeletHasSufficientMemory",
+              "status": "False",
+              "type": "MemoryPressure"
+            },
+            {
+              "lastHeartbeatTime": "2026-11-14T18:23:37Z",
+              "lastTransitionTime": "2026-11-14T16:08:20Z",
+              "message": "kubelet has no disk pressure",
+              "reason": "KubeletHasNoDiskPressure",
+              "status": "False",
+              "type": "DiskPressure"
+            },
+            {
+              "lastHeartbeatTime": "2026-11-14T18:23:37Z",
+              "lastTransitionTime": "2026-11-14T16:08:20Z",
+              "message": "kubelet has sufficient PID available",
+              "reason": "KubeletHasSufficientPID",
+              "status": "False",
+              "type": "PIDPressure"
+            },
+            {
+              "lastHeartbeatTime": "2026-11-14T18:23:37Z",
+              "lastTransitionTime": "2026-11-14T16:08:41Z",
+              "message": "kubelet is posting ready status",
+              "reason": "KubeletReady",
+              "status": "True",
+              "type": "Ready"
+            }
+          ],
+          "daemonEndpoints": {
+            "kubeletEndpoint": {
+              "Port": 10250
+            }
+          },
+          "declaredFeatures": [
+            "ExtendWebSocketsToKubelet",
+            "InPlacePodLevelResourcesVerticalScaling",
+            "InPlacePodVerticalScalingInitContainers",
+            "RestartAllContainersOnContainerExits"
+          ],
+          "features": {
+            "supplementalGroupsPolicy": true
+          },
+          "images": [
+            {
+              "names": [
+                "docker.io/library/import-2026-11-14@sha256:623c104c29007e7978de5380a3a14b42bf919074df2afd7f6976c5ae2824dda6",
+                "docker.io/library/mlops-inference:1.0.0"
+              ],
+              "sizeBytes": 141143797
+            },
+            {
+              "names": [
+                "docker.io/library/import-2026-08-26@sha256:eff360f86083f21c9ceaa64cbaa2e4d439d9e7e1d6834c21d25daac35e58015b",
+                "registry.k8s.io/kube-apiserver-amd64:v1.37.0",
+                "registry.k8s.io/kube-apiserver:v1.37.0"
+              ],
+              "sizeBytes": 104328054
+            },
+            {
+              "names": [
+                "docker.io/library/import-2026-08-26@sha256:79bd77de40aa3294690796f94cdc8a08c4cf6a51a6a3500425c56c9e13622cc7",
+                "registry.k8s.io/kube-controller-manager-amd64:v1.37.0",
+                "registry.k8s.io/kube-controller-manager:v1.37.0"
+              ],
+              "sizeBytes": 91037405
+            },
+            {
+              "names": [
+                "docker.io/library/import-2026-08-26@sha256:1aa5cce2a7d436c309f705cf2a32a50f8378a2b6f2e5dd4bb26f81c714dd0b86",
+                "registry.k8s.io/kube-proxy-amd64:v1.37.0",
+                "registry.k8s.io/kube-proxy:v1.37.0"
+              ],
+              "sizeBytes": 82822887
+            },
+            {
+              "names": [
+                "docker.io/library/import-2026-08-26@sha256:213e68034d4be2f89076d1d446501434d1bfdff862916392708f095f5fecb6e1",
+                "registry.k8s.io/kube-scheduler-amd64:v1.37.0",
+                "registry.k8s.io/kube-scheduler:v1.37.0"
+              ],
+              "sizeBytes": 62688989
+            },
+            {
+              "names": [
+                "docker.io/kindest/kindnetd:v20260820-69b56db7"
+              ],
+              "sizeBytes": 39744255
+            },
+            {
+              "names": [
+                "registry.k8s.io/coredns/coredns:v1.14.6"
+              ],
+              "sizeBytes": 23758055
+            },
+            {
+              "names": [
+                "registry.k8s.io/etcd:3.7.0-0"
+              ],
+              "sizeBytes": 22342384
+            },
+            {
+              "names": [
+                "docker.io/kindest/local-path-provisioner:v20260820-69b56db7"
+              ],
+              "sizeBytes": 15868133
+            },
+            {
+              "names": [
+                "docker.io/kindest/local-path-helper:v20260131-7181c60a"
+              ],
+              "sizeBytes": 2872608
+            },
+            {
+              "names": [
+                "registry.k8s.io/pause:3.10"
+              ],
+              "sizeBytes": 320368
+            }
+          ],
+          "nodeInfo": {
+            "architecture": "amd64",
+            "bootID": "023ea9cd-04f3-42fa-aae0-607da723251b",
+            "containerRuntimeVersion": "containerd://2.3.4",
+            "kernelVersion": "6.18.33.1-microsoft-standard-WSL2",
+            "kubeProxyVersion": "",
+            "kubeletVersion": "v1.37.0",
+            "machineID": "35ccc456379540e99d3aebbf58369419",
+            "operatingSystem": "linux",
+            "osImage": "Debian GNU/Linux 13 (trixie)",
+            "runningInUserNamespace": false,
+            "swap": {
+              "capacity": 6442450944
+            },
+            "systemUUID": "35ccc456379540e99d3aebbf58369419"
+          },
+          "runtimeHandlers": [
+            {
+              "features": {
+                "recursiveReadOnlyMounts": true,
+                "userNamespaces": true
+              },
+              "name": ""
+            },
+            {
+              "features": {
+                "recursiveReadOnlyMounts": true,
+                "userNamespaces": true
+              },
+              "name": "runc"
+            },
+            {
+              "features": {
+                "recursiveReadOnlyMounts": true,
+                "userNamespaces": true
+              },
+              "name": "test-handler"
+            }
+          ]
+        }
+      }
+    ],
+    "kind": "List",
+    "metadata": {
+      "resourceVersion": ""
+    }
+  },
+  "kubernetes": {
+    "apiVersion": "v1",
+    "items": [
+      {
+        "apiVersion": "apps/v1",
+        "kind": "Deployment",
+        "metadata": {
+          "annotations": {
+            "deployment.kubernetes.io/revision": "8",
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"apps/v1\",\"kind\":\"Deployment\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/name\":\"inference-api\",\"app.kubernetes.io/version\":\"1.0.0\"},\"name\":\"inference-api\",\"namespace\":\"mlops-agent\"},\"spec\":{\"replicas\":2,\"selector\":{\"matchLabels\":{\"app.kubernetes.io/name\":\"inference-api\"}},\"template\":{\"metadata\":{\"labels\":{\"app.kubernetes.io/name\":\"inference-api\",\"app.kubernetes.io/version\":\"1.0.0\"}},\"spec\":{\"containers\":[{\"envFrom\":[{\"configMapRef\":{\"name\":\"inference-config\"}}],\"image\":\"mlops-inference:1.0.0\",\"imagePullPolicy\":\"IfNotPresent\",\"livenessProbe\":{\"httpGet\":{\"path\":\"/healthz\",\"port\":8000},\"initialDelaySeconds\":10,\"periodSeconds\":10},\"name\":\"inference-api\",\"ports\":[{\"containerPort\":8000}],\"readinessProbe\":{\"failureThreshold\":3,\"httpGet\":{\"path\":\"/readyz\",\"port\":8000},\"initialDelaySeconds\":3,\"periodSeconds\":5},\"resources\":{\"limits\":{\"cpu\":\"500m\",\"memory\":\"256Mi\"},\"requests\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}\n"
+          },
+          "creationTimestamp": "2026-11-14T16:12:25Z",
+          "generation": 10,
+          "labels": {
+            "app.kubernetes.io/name": "inference-api",
+            "app.kubernetes.io/version": "1.0.0"
+          },
+          "name": "inference-api",
+          "namespace": "mlops-agent",
+          "resourceVersion": "7687",
+          "uid": "9356b179-0569-4144-8aa9-2a8f557db3f4"
+        },
+        "spec": {
+          "progressDeadlineSeconds": 600,
+          "replicas": 2,
+          "revisionHistoryLimit": 10,
+          "selector": {
+            "matchLabels": {
+              "app.kubernetes.io/name": "inference-api"
+            }
+          },
+          "strategy": {
+            "rollingUpdate": {
+              "maxSurge": "25%",
+              "maxUnavailable": "25%"
+            },
+            "type": "RollingUpdate"
+          },
+          "template": {
+            "metadata": {
+              "annotations": {
+                "kubectl.kubernetes.io/restartedAt": "2026-11-14T22:28:01+05:00"
+              },
+              "labels": {
+                "app.kubernetes.io/name": "inference-api",
+                "app.kubernetes.io/version": "1.0.0"
+              }
+            },
+            "spec": {
+              "containers": [
+                {
+                  "envFrom": [
+                    {
+                      "configMapRef": {
+                        "name": "inference-config"
+                      }
+                    }
+                  ],
+                  "image": "mlops-inference:1.0.0",
+                  "imagePullPolicy": "IfNotPresent",
+                  "livenessProbe": {
+                    "failureThreshold": 3,
+                    "httpGet": {
+                      "path": "/healthz",
+                      "port": 8000,
+                      "scheme": "HTTP"
+                    },
+                    "initialDelaySeconds": 10,
+                    "periodSeconds": 10,
+                    "successThreshold": 1,
+                    "timeoutSeconds": 1
+                  },
+                  "name": "inference-api",
+                  "ports": [
+                    {
+                      "containerPort": 8000,
+                      "protocol": "TCP"
+                    }
+                  ],
+                  "readinessProbe": {
+                    "failureThreshold": 3,
+                    "httpGet": {
+                      "path": "/readyz",
+                      "port": 8000,
+                      "scheme": "HTTP"
+                    },
+                    "initialDelaySeconds": 3,
+                    "periodSeconds": 5,
+                    "successThreshold": 1,
+                    "timeoutSeconds": 1
+                  },
+                  "resources": {
+                    "limits": {
+                      "cpu": "500m",
+                      "memory": "256Mi"
+                    },
+                    "requests": {
+                      "cpu": "100m",
+                      "memory": "128Mi"
+                    }
+                  },
+                  "terminationMessagePath": "/dev/termination-log",
+                  "terminationMessagePolicy": "File"
+                }
+              ],
+              "dnsPolicy": "ClusterFirst",
+              "restartPolicy": "Always",
+              "schedulerName": "default-scheduler",
+              "securityContext": {},
+              "terminationGracePeriodSeconds": 30
+            }
+          }
+        },
+        "status": {
+          "availableReplicas": 2,
+          "conditions": [
+            {
+              "lastTransitionTime": "2026-11-14T17:28:14Z",
+              "lastUpdateTime": "2026-11-14T17:28:14Z",
+              "message": "Deployment has minimum availability.",
+              "reason": "MinimumReplicasAvailable",
+              "status": "True",
+              "type": "Available"
+            },
+            {
+              "lastTransitionTime": "2026-11-14T16:12:25Z",
+              "lastUpdateTime": "2026-11-14T17:28:15Z",
+              "message": "ReplicaSet \"inference-api-74c97478cf\" has successfully progressed.",
+              "reason": "NewReplicaSetAvailable",
+              "status": "True",
+              "type": "Progressing"
+            }
+          ],
+          "observedGeneration": 10,
+          "readyReplicas": 2,
+          "replicas": 2,
+          "terminatingReplicas": 0,
+          "updatedReplicas": 2
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/restartedAt": "2026-11-14T22:28:01+05:00"
+          },
+          "creationTimestamp": "2026-11-14T17:28:08Z",
+          "generateName": "inference-api-74c97478cf-",
+          "generation": 1,
+          "labels": {
+            "app.kubernetes.io/name": "inference-api",
+            "app.kubernetes.io/version": "1.0.0",
+            "pod-template-hash": "74c97478cf"
+          },
+          "name": "inference-api-74c97478cf-g4pmt",
+          "namespace": "mlops-agent",
+          "ownerReferences": [
+            {
+              "apiVersion": "apps/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "ReplicaSet",
+              "name": "inference-api-74c97478cf",
+              "uid": "1e4fab57-3c78-46a0-9db5-0984534de9c2"
+            }
+          ],
+          "resourceVersion": "7669",
+          "uid": "a3692b3f-dc25-4c93-925a-c825c44f089a"
+        },
+        "spec": {
+          "containers": [
+            {
+              "envFrom": [
+                {
+                  "configMapRef": {
+                    "name": "inference-config"
+                  }
+                }
+              ],
+              "image": "mlops-inference:1.0.0",
+              "imagePullPolicy": "IfNotPresent",
+              "livenessProbe": {
+                "failureThreshold": 3,
+                "httpGet": {
+                  "path": "/healthz",
+                  "port": 8000,
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 10,
+                "periodSeconds": 10,
+                "successThreshold": 1,
+                "timeoutSeconds": 1
+              },
+              "name": "inference-api",
+              "ports": [
+                {
+                  "containerPort": 8000,
+                  "protocol": "TCP"
+                }
+              ],
+              "readinessProbe": {
+                "failureThreshold": 3,
+                "httpGet": {
+                  "path": "/readyz",
+                  "port": 8000,
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 3,
+                "periodSeconds": 5,
+                "successThreshold": 1,
+                "timeoutSeconds": 1
+              },
+              "resources": {
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "256Mi"
+                },
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "128Mi"
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "kube-api-access-qj587",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "enableServiceLinks": true,
+          "nodeName": "mlops-control-plane",
+          "preemptionPolicy": "PreemptLowerPriority",
+          "priority": 0,
+          "restartPolicy": "Always",
+          "schedulerName": "default-scheduler",
+          "securityContext": {},
+          "serviceAccount": "default",
+          "serviceAccountName": "default",
+          "terminationGracePeriodSeconds": 30,
+          "tolerations": [
+            {
+              "effect": "NoExecute",
+              "key": "node.kubernetes.io/not-ready",
+              "operator": "Exists",
+              "tolerationSeconds": 300
+            },
+            {
+              "effect": "NoExecute",
+              "key": "node.kubernetes.io/unreachable",
+              "operator": "Exists",
+              "tolerationSeconds": 300
+            }
+          ],
+          "volumes": [
+            {
+              "name": "kube-api-access-qj587",
+              "projected": {
+                "defaultMode": 420,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ],
+                      "name": "kube-root-ca.crt"
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          },
+                          "path": "namespace"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "status": {
+          "allocatedResources": {
+            "cpu": "100m",
+            "memory": "128Mi"
+          },
+          "conditions": [
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:09Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "PodReadyToStartContainers"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:09Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "Initialized"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:14Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:14Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "ContainersReady"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:09Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "PodScheduled"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "allocatedResources": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              },
+              "containerID": "containerd://bd97c512460a172a7179ac50b1a599a9de64d341eacdeeb6ace72d70c80ca606",
+              "image": "docker.io/library/mlops-inference:1.0.0",
+              "imageID": "docker.io/library/import-2026-11-14@sha256:623c104c29007e7978de5380a3a14b42bf919074df2afd7f6976c5ae2824dda6",
+              "lastState": {},
+              "name": "inference-api",
+              "ready": true,
+              "resources": {
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "256Mi"
+                },
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "128Mi"
+                }
+              },
+              "restartCount": 0,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2026-11-14T17:28:09Z"
+                }
+              },
+              "user": {
+                "linux": {
+                  "gid": 999,
+                  "supplementalGroups": [
+                    999
+                  ],
+                  "uid": 10001
+                }
+              },
+              "volumeMounts": [
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "kube-api-access-qj587",
+                  "readOnly": true,
+                  "recursiveReadOnly": "Disabled"
+                }
+              ]
+            }
+          ],
+          "hostIP": "172.20.0.2",
+          "hostIPs": [
+            {
+              "ip": "172.20.0.2"
+            }
+          ],
+          "observedGeneration": 1,
+          "phase": "Running",
+          "podIP": "10.244.0.16",
+          "podIPs": [
+            {
+              "ip": "10.244.0.16"
+            }
+          ],
+          "qosClass": "Burstable",
+          "resources": {
+            "limits": {
+              "cpu": "500m",
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "79m",
+              "memory": "128Mi"
+            }
+          },
+          "startTime": "2026-11-14T17:28:09Z"
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Pod",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/restartedAt": "2026-11-14T22:28:01+05:00"
+          },
+          "creationTimestamp": "2026-11-14T17:28:01Z",
+          "generateName": "inference-api-74c97478cf-",
+          "generation": 1,
+          "labels": {
+            "app.kubernetes.io/name": "inference-api",
+            "app.kubernetes.io/version": "1.0.0",
+            "pod-template-hash": "74c97478cf"
+          },
+          "name": "inference-api-74c97478cf-vbbmw",
+          "namespace": "mlops-agent",
+          "ownerReferences": [
+            {
+              "apiVersion": "apps/v1",
+              "blockOwnerDeletion": true,
+              "controller": true,
+              "kind": "ReplicaSet",
+              "name": "inference-api-74c97478cf",
+              "uid": "1e4fab57-3c78-46a0-9db5-0984534de9c2"
+            }
+          ],
+          "resourceVersion": "7614",
+          "uid": "7a46ba74-4f79-4ca7-9fc0-7750a83b96a8"
+        },
+        "spec": {
+          "containers": [
+            {
+              "envFrom": [
+                {
+                  "configMapRef": {
+                    "name": "inference-config"
+                  }
+                }
+              ],
+              "image": "mlops-inference:1.0.0",
+              "imagePullPolicy": "IfNotPresent",
+              "livenessProbe": {
+                "failureThreshold": 3,
+                "httpGet": {
+                  "path": "/healthz",
+                  "port": 8000,
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 10,
+                "periodSeconds": 10,
+                "successThreshold": 1,
+                "timeoutSeconds": 1
+              },
+              "name": "inference-api",
+              "ports": [
+                {
+                  "containerPort": 8000,
+                  "protocol": "TCP"
+                }
+              ],
+              "readinessProbe": {
+                "failureThreshold": 3,
+                "httpGet": {
+                  "path": "/readyz",
+                  "port": 8000,
+                  "scheme": "HTTP"
+                },
+                "initialDelaySeconds": 3,
+                "periodSeconds": 5,
+                "successThreshold": 1,
+                "timeoutSeconds": 1
+              },
+              "resources": {
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "256Mi"
+                },
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "128Mi"
+                }
+              },
+              "terminationMessagePath": "/dev/termination-log",
+              "terminationMessagePolicy": "File",
+              "volumeMounts": [
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "kube-api-access-xwzpz",
+                  "readOnly": true
+                }
+              ]
+            }
+          ],
+          "dnsPolicy": "ClusterFirst",
+          "enableServiceLinks": true,
+          "nodeName": "mlops-control-plane",
+          "preemptionPolicy": "PreemptLowerPriority",
+          "priority": 0,
+          "restartPolicy": "Always",
+          "schedulerName": "default-scheduler",
+          "securityContext": {},
+          "serviceAccount": "default",
+          "serviceAccountName": "default",
+          "terminationGracePeriodSeconds": 30,
+          "tolerations": [
+            {
+              "effect": "NoExecute",
+              "key": "node.kubernetes.io/not-ready",
+              "operator": "Exists",
+              "tolerationSeconds": 300
+            },
+            {
+              "effect": "NoExecute",
+              "key": "node.kubernetes.io/unreachable",
+              "operator": "Exists",
+              "tolerationSeconds": 300
+            }
+          ],
+          "volumes": [
+            {
+              "name": "kube-api-access-xwzpz",
+              "projected": {
+                "defaultMode": 420,
+                "sources": [
+                  {
+                    "serviceAccountToken": {
+                      "expirationSeconds": 3607,
+                      "path": "token"
+                    }
+                  },
+                  {
+                    "configMap": {
+                      "items": [
+                        {
+                          "key": "ca.crt",
+                          "path": "ca.crt"
+                        }
+                      ],
+                      "name": "kube-root-ca.crt"
+                    }
+                  },
+                  {
+                    "downwardAPI": {
+                      "items": [
+                        {
+                          "fieldRef": {
+                            "apiVersion": "v1",
+                            "fieldPath": "metadata.namespace"
+                          },
+                          "path": "namespace"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "status": {
+          "allocatedResources": {
+            "cpu": "100m",
+            "memory": "128Mi"
+          },
+          "conditions": [
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:01Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "PodReadyToStartContainers"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:01Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "Initialized"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:08Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "Ready"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:08Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "ContainersReady"
+            },
+            {
+              "lastProbeTime": null,
+              "lastTransitionTime": "2026-11-14T17:28:01Z",
+              "observedGeneration": 1,
+              "status": "True",
+              "type": "PodScheduled"
+            }
+          ],
+          "containerStatuses": [
+            {
+              "allocatedResources": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              },
+              "containerID": "containerd://512975d17406c5ecddae215406febd51489731a52bb6cd872423a8414f56d830",
+              "image": "docker.io/library/mlops-inference:1.0.0",
+              "imageID": "docker.io/library/import-2026-11-14@sha256:623c104c29007e7978de5380a3a14b42bf919074df2afd7f6976c5ae2824dda6",
+              "lastState": {},
+              "name": "inference-api",
+              "ready": true,
+              "resources": {
+                "limits": {
+                  "cpu": "500m",
+                  "memory": "256Mi"
+                },
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "128Mi"
+                }
+              },
+              "restartCount": 0,
+              "started": true,
+              "state": {
+                "running": {
+                  "startedAt": "2026-11-14T17:28:01Z"
+                }
+              },
+              "user": {
+                "linux": {
+                  "gid": 999,
+                  "supplementalGroups": [
+                    999
+                  ],
+                  "uid": 10001
+                }
+              },
+              "volumeMounts": [
+                {
+                  "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                  "name": "kube-api-access-xwzpz",
+                  "readOnly": true,
+                  "recursiveReadOnly": "Disabled"
+                }
+              ]
+            }
+          ],
+          "hostIP": "172.20.0.2",
+          "hostIPs": [
+            {
+              "ip": "172.20.0.2"
+            }
+          ],
+          "observedGeneration": 1,
+          "phase": "Running",
+          "podIP": "10.244.0.15",
+          "podIPs": [
+            {
+              "ip": "10.244.0.15"
+            }
+          ],
+          "qosClass": "Burstable",
+          "resources": {
+            "limits": {
+              "cpu": "500m",
+              "memory": "256Mi"
+            },
+            "requests": {
+              "cpu": "79m",
+              "memory": "128Mi"
+            }
+          },
+          "startTime": "2026-11-14T17:28:01Z"
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "annotations": {
+            "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"Service\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/name\":\"inference-api\"},\"name\":\"inference-api\",\"namespace\":\"mlops-agent\"},\"spec\":{\"ports\":[{\"port\":80,\"targetPort\":8000}],\"selector\":{\"app.kubernetes.io/name\":\"inference-api\"},\"type\":\"ClusterIP\"}}\n"
+          },
+          "creationTimestamp": "2026-11-14T16:12:25Z",
+          "labels": {
+            "app.kubernetes.io/name": "inference-api"
+          },
+          "name": "inference-api",
+          "namespace": "mlops-agent",
+          "resourceVersion": "833",
+          "uid": "d38e782a-236b-41dc-9345-2cc70f27ab29"
+        },
+        "spec": {
+          "clusterIP": "10.96.116.87",
+          "clusterIPs": [
+            "10.96.116.87"
+          ],
+          "internalTrafficPolicy": "Cluster",
+          "ipFamilies": [
+            "IPv4"
+          ],
+          "ipFamilyPolicy": "SingleStack",
+          "ports": [
+            {
+              "port": 80,
+              "protocol": "TCP",
+              "targetPort": 8000
+            }
+          ],
+          "selector": {
+            "app.kubernetes.io/name": "inference-api"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        },
+        "status": {
+          "loadBalancer": {}
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Endpoints",
+        "metadata": {
+          "creationTimestamp": "2026-11-14T16:12:25Z",
+          "labels": {
+            "app.kubernetes.io/name": "inference-api",
+            "endpoints.kubernetes.io/managed-by": "endpoint-controller"
+          },
+          "name": "inference-api",
+          "namespace": "mlops-agent",
+          "resourceVersion": "7676",
+          "uid": "ea9f5474-1adc-4c76-9cb6-d03748d259b8"
+        },
+        "subsets": [
+          {
+            "addresses": [
+              {
+                "ip": "10.244.0.15",
+                "nodeName": "mlops-control-plane",
+                "targetRef": {
+                  "kind": "Pod",
+                  "name": "inference-api-74c97478cf-vbbmw",
+                  "namespace": "mlops-agent",
+                  "uid": "7a46ba74-4f79-4ca7-9fc0-7750a83b96a8"
+                }
+              },
+              {
+                "ip": "10.244.0.16",
+                "nodeName": "mlops-control-plane",
+                "targetRef": {
+                  "kind": "Pod",
+                  "name": "inference-api-74c97478cf-g4pmt",
+                  "namespace": "mlops-agent",
+                  "uid": "a3692b3f-dc25-4c93-925a-c825c44f089a"
+                }
+              }
+            ],
+            "ports": [
+              {
+                "port": 8000,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "kind": "List",
+    "metadata": {
+      "resourceVersion": ""
+    }
+  },
+  "dvc": {
+    "exit": 0,
+    "stdout": "Data and pipelines are up to date.",
+    "stderr": ""
+  },
+  "mlflow_runs": [
+    {
+      "run_id": "19ccbffb3516412eb4d3a615c36e84b3",
+      "name": "bustling-yak-931",
+      "status": "FINISHED",
+      "metrics": {
+        "f1": 0.9773755656108597,
+        "accuracy": 0.9712643678160919,
+        "precision": 0.9642857142857143,
+        "recall": 0.9908256880733946
+      },
+      "quality_gate": "passed",
+      "provenance": {
+        "dvc.md5": "fca8d29f55d3bb4293b10d4935173c34",
+        "git.commit": "45fc14b6a8593fff6405a69410819aa8bfd4d22d",
+        "dataset.version": "dataset-v1.1"
+      }
+    },
+    {
+      "run_id": "70945d112d4e437f95fa41ada32ede07",
+      "name": "orderly-fox-973",
+      "status": "FINISHED",
+      "metrics": {
+        "f1": 0.9773755656108597,
+        "accuracy": 0.9712643678160919,
+        "precision": 0.9642857142857143,
+        "recall": 0.9908256880733946
+      },
+      "quality_gate": "passed",
+      "provenance": {
+        "dvc.md5": "fca8d29f55d3bb4293b10d4935173c34",
+        "git.commit": "unknown",
+        "dataset.version": "untagged"
+      }
+    },
+    {
+      "run_id": "918ce99dcbd649ab85d6b46eebc45d2f",
+      "name": "capricious-panda-265",
+      "status": "RUNNING",
+      "metrics": {
+        "f1": 0.9773755656108597,
+        "accuracy": 0.9712643678160919,
+        "precision": 0.9642857142857143,
+        "recall": 0.9908256880733946
+      },
+      "quality_gate": null,
+      "provenance": {
+        "dvc.md5": "fca8d29f55d3bb4293b10d4935173c34",
+        "git.commit": "unknown",
+        "dataset.version": "untagged"
+      }
+    },
+    {
+      "run_id": "6e3c771cc5ea4be48f63e6bcc37dca60",
+      "name": "10.580449+00:00_tnyYmmFk",
+      "status": "FINISHED",
+      "metrics": {
+        "f1": 0.9773755656108597,
+        "accuracy": 0.9712643678160919,
+        "precision": 0.9642857142857143,
+        "recall": 0.9908256880733946
+      },
+      "quality_gate": "passed",
+      "provenance": {
+        "dvc.md5": "fca8d29f55d3bb4293b10d4935173c34",
+        "git.commit": "45fc14b6a8593fff6405a69410819aa8bfd4d22d",
+        "dataset.version": "dataset-v1.1"
+      }
+    },
+    {
+      "run_id": "a7230cef40cb42fb8d19ec09fc9f9c53",
+      "name": "15.335787+00:00_9TRLctBG",
+      "status": "FINISHED",
+      "metrics": {
+        "f1": 0.9773755656108597,
+        "accuracy": 0.9712643678160919,
+        "precision": 0.9642857142857143,
+        "recall": 0.9908256880733946
+      },
+      "quality_gate": "passed",
+      "provenance": {
+        "dvc.md5": "fca8d29f55d3bb4293b10d4935173c34",
+        "git.commit": "unknown",
+        "dataset.version": "untagged"
+      }
+    }
+  ],
+  "airflow_runs": [
+    {
+      "dag_run_id": "manual__2026-11-14T17:34:10.580449+00:00_tnyYmmFk",
+      "dag_id": "ml_training_pipeline",
+      "logical_date": null,
+      "queued_at": "2026-11-14T17:34:10.588865Z",
+      "start_date": "2026-11-14T17:34:11.129895Z",
+      "end_date": "2026-11-14T17:34:31.640251Z",
+      "duration": 20.510356,
+      "data_interval_start": null,
+      "data_interval_end": null,
+      "run_after": "2026-11-14T17:34:10.580449Z",
+      "last_scheduling_decision": "2026-11-14T17:34:31.637844Z",
+      "run_type": "manual",
+      "state": "success",
+      "triggered_by": "rest_api",
+      "triggering_user_name": "admin",
+      "conf": {},
+      "note": null,
+      "dag_versions": [
+        {
+          "id": "01a1db13-930c-7e34-a8cd-3eb86547a678",
+          "version_number": 1,
+          "dag_id": "ml_training_pipeline",
+          "bundle_name": "dags-folder",
+          "bundle_version": null,
+          "created_at": "2026-11-14T17:20:55.564102Z",
+          "dag_display_name": "ml_training_pipeline",
+          "bundle_url": null
+        }
+      ],
+      "bundle_version": null,
+      "dag_display_name": "ml_training_pipeline"
+    },
+    {
+      "dag_run_id": "manual__2026-11-14T17:32:15.335787+00:00_9TRLctBG",
+      "dag_id": "ml_training_pipeline",
+      "logical_date": null,
+      "queued_at": "2026-11-14T17:32:15.341705Z",
+      "start_date": "2026-11-14T17:32:16.777513Z",
+      "end_date": "2026-11-14T17:32:35.858764Z",
+      "duration": 19.081251,
+      "data_interval_start": null,
+      "data_interval_end": null,
+      "run_after": "2026-11-14T17:32:15.335787Z",
+      "last_scheduling_decision": "2026-11-14T17:32:35.856988Z",
+      "run_type": "manual",
+      "state": "success",
+      "triggered_by": "rest_api",
+      "triggering_user_name": "admin",
+      "conf": {},
+      "note": null,
+      "dag_versions": [
+        {
+          "id": "01a1db13-930c-7e34-a8cd-3eb86547a678",
+          "version_number": 1,
+          "dag_id": "ml_training_pipeline",
+          "bundle_name": "dags-folder",
+          "bundle_version": null,
+          "created_at": "2026-11-14T17:20:55.564102Z",
+          "dag_display_name": "ml_training_pipeline",
+          "bundle_url": null
+        }
+      ],
+      "bundle_version": null,
+      "dag_display_name": "ml_training_pipeline"
+    },
+    {
+      "dag_run_id": "manual__2026-11-14T17:28:37.692339+00:00_ZeIEyV6U",
+      "dag_id": "ml_training_pipeline",
+      "logical_date": null,
+      "queued_at": "2026-11-14T17:28:37.699194Z",
+      "start_date": "2026-11-14T17:28:38.426552Z",
+      "end_date": "2026-11-14T17:28:43.791991Z",
+      "duration": 5.365439,
+      "data_interval_start": null,
+      "data_interval_end": null,
+      "run_after": "2026-11-14T17:28:37.692339Z",
+      "last_scheduling_decision": "2026-11-14T17:28:43.790410Z",
+      "run_type": "manual",
+      "state": "failed",
+      "triggered_by": "rest_api",
+      "triggering_user_name": "admin",
+      "conf": {},
+      "note": null,
+      "dag_versions": [
+        {
+          "id": "01a1db13-930c-7e34-a8cd-3eb86547a678",
+          "version_number": 1,
+          "dag_id": "ml_training_pipeline",
+          "bundle_name": "dags-folder",
+          "bundle_version": null,
+          "created_at": "2026-11-14T17:20:55.564102Z",
+          "dag_display_name": "ml_training_pipeline",
+          "bundle_url": null
+        }
+      ],
+      "bundle_version": null,
+      "dag_display_name": "ml_training_pipeline"
+    },
+    {
+      "dag_run_id": "manual__2026-11-14T17:21:16.277668+00:00_dcPUnPEl",
+      "dag_id": "ml_training_pipeline",
+      "logical_date": null,
+      "queued_at": "2026-11-14T17:21:16.288813Z",
+      "start_date": "2026-11-14T17:21:17.380868Z",
+      "end_date": "2026-11-14T17:21:41.601335Z",
+      "duration": 24.220467,
+      "data_interval_start": null,
+      "data_interval_end": null,
+      "run_after": "2026-11-14T17:21:16.277668Z",
+      "last_scheduling_decision": "2026-11-14T17:21:41.599078Z",
+      "run_type": "manual",
+      "state": "success",
+      "triggered_by": "rest_api",
+      "triggering_user_name": "admin",
+      "conf": {},
+      "note": null,
+      "dag_versions": [
+        {
+          "id": "01a1db13-930c-7e34-a8cd-3eb86547a678",
+          "version_number": 1,
+          "dag_id": "ml_training_pipeline",
+          "bundle_name": "dags-folder",
+          "bundle_version": null,
+          "created_at": "2026-11-14T17:20:55.564102Z",
+          "dag_display_name": "ml_training_pipeline",
+          "bundle_url": null
+        }
+      ],
+      "bundle_version": null,
+      "dag_display_name": "ml_training_pipeline"
+    }
+  ]
+}

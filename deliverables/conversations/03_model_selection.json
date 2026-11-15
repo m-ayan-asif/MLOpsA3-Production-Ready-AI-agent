@@ -1,0 +1,26 @@
+{
+  "scenario": "03_model_selection",
+  "captured_at": "2026-11-14T18:25:36.502566+00:00",
+  "model": "gemini-3.1-flash-lite",
+  "endpoint": "POST http://127.0.0.1:8000/chat",
+  "http_status": 200,
+  "duration_seconds": 56.621,
+  "request": {
+    "message": "Compare the five most recent finished runs in mlops-agent-demo and recommend the best candidate by F1. Include quality-gate and runner-up margin caveats. Use MLflow tools."
+  },
+  "response": {
+    "request_id": "9783c5c53f21",
+    "answer": "### Known facts\n*   **Best Run:** The five most recent runs in `mlops-agent-demo` all achieved an identical F1 score of ~0.977.\n*   **Quality Gate:** The best run (`19ccbffb3516412eb4d3a615c36e84b3`) passed the quality gate (F1 >= 0.93).\n*   **Readiness Checks:** While the run passed the quality gate and has recorded provenance, it failed the \"margin over runner-up\" check. The gap between the top run and the runner-up is 0, which is below the 0.005 threshold required to distinguish performance from noise.\n\n### Uncertainties\n*   The identical F1 scores across all five runs suggest that the model performance is currently indistinguishable based on this metric alone.\n\n### Recommended actions\n*   **Do not promote:** Given the lack of a significant margin over the runner-up, these results should be treated as statistically indistinguishable.\n*   **Further Investigation:** Analyze other metrics (e.g., precision, recall, or latency) or evaluate the models on a hold-out test set to determine if there is a meaningful difference between these runs.\n*   **Review Parameters:** Check if the identical results are due to identical hyperparameter configurations or a lack of sensitivity in the current evaluation setup.",
+    "steps": 2,
+    "tool_trace": [
+      {
+        "tool": "mlflow_best_run",
+        "source": "mlflow",
+        "status": "ok",
+        "duration_ms": 199.9,
+        "error": null
+      }
+    ],
+    "tool_failures": []
+  }
+}

@@ -56,6 +56,7 @@ def _check_rev(rev: str) -> str:
 
 
 def _dvc_file(path: str) -> str:
+    path = path.replace("\\", "/")
     if not _PATH_RE.match(path) or ".." in path:
         raise ToolError("invalid_arguments", f"Invalid path: {path!r}")
     return path if path.endswith(".dvc") else path + ".dvc"
@@ -85,7 +86,7 @@ def dvc_list_datasets() -> dict[str, Any]:
         rel = file.relative_to(_repo())
         if skip & set(rel.parts):
             continue
-        found.append({"dvc_file": str(rel), **_parse_dvc(file.read_text())})
+        found.append({"dvc_file": rel.as_posix(), **_parse_dvc(file.read_text())})
     return {"datasets": found, "count": len(found)}
 
 
@@ -128,7 +129,17 @@ def dvc_compare_versions(path: str, rev_a: str, rev_b: str) -> dict[str, Any]:
 def dvc_detect_changes() -> dict[str, Any]:
     raw = json.loads(_run(["dvc", "data", "status", "--json"]) or "{}")
     uncommitted = raw.get("uncommitted", {}) or {}
-    changed = [*uncommitted.get("modified", []), *uncommitted.get("deleted", [])]
+    candidates = [*uncommitted.get("added", []), *uncommitted.get("modified", []),
+                  *uncommitted.get("deleted", [])]
+    tracked = {
+        (Path(dataset["dvc_file"]).parent / dataset["path"]).as_posix()
+        for dataset in dvc_list_datasets()["datasets"] if dataset.get("path")
+    }
+    changed = []
+    for candidate in candidates:
+        path = Path(candidate.replace("\\", "/")).as_posix()
+        if any(path == item or path.startswith(f"{item.rstrip('/')}/") for item in tracked):
+            changed.append(candidate)
     return {"changed": bool(changed), "changed_paths": changed,
             "not_in_cache": raw.get("not_in_cache", []), "raw": raw}
 
@@ -136,8 +147,10 @@ def dvc_detect_changes() -> dict[str, Any]:
 @tool(
     source="dvc",
     description="Explain, step by step, how to reproduce a dataset at a given Git revision. "
+                "Use a Git tag, branch, or commit (for example dataset-v1.1), not a DVC MD5 hash. "
                 "Read-only: it verifies the revision exists and returns commands.",
-    properties={"path": {"type": "string"}, "rev": {"type": "string"}},
+    properties={"path": {"type": "string"},
+                "rev": {"type": "string", "description": "Git tag, branch, or commit; not DVC MD5"}},
     required=("path", "rev"),
 )
 def dvc_explain_reproduce(path: str, rev: str) -> dict[str, Any]:

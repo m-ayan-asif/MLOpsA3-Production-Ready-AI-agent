@@ -4,6 +4,22 @@ A Gemini-powered agent that answers questions about, and (with confirmation) ope
 DVC + MLflow + Airflow 3 + Kubernetes stack. See [architecture.md](architecture.md) for design and
 tool permissions.
 
+## Repository layout
+
+The project follows the recommended Assignment 03 repository layout. Application code is grouped
+under `agent/`, `api/`, `dags/`, and `training/`; deployment manifests are under `kubernetes/`;
+tests and CI are under `tests/` and `.github/workflows/`; and authentic evaluation captures are in
+the repository-root [screenshots/](screenshots/README.md) directory. Additional setup scripts,
+Docker configuration, and the [submission evidence package](deliverables/README.md) are included
+to support local operation and assessment.
+
+## Submission evidence
+
+The assessment report, failure investigations, conversation traces, and screenshot evidence are
+organized under [deliverables/](deliverables/README.md). Authentic UI/terminal captures and
+generated evidence summaries are distinguished in [deliverables/screenshots/](deliverables/screenshots/README.md).
+The authentic captures are also copied into the required repository-root `screenshots/` folder.
+
 ## 0. Prerequisites
 Python 3.10+, Docker, `kind`, `kubectl`, Git, a Gemini API key.
 

@@ -1,0 +1,14 @@
+{
+  "scenario": "01_multi_tool",
+  "captured_at": "2026-11-14T18:24:11.586803+00:00",
+  "model": "gemini-3.1-flash-lite",
+  "endpoint": "POST http://127.0.0.1:8000/chat",
+  "http_status": 502,
+  "duration_seconds": 6.164,
+  "request": {
+    "message": "Find the best recent model, identify the dataset version used to train it, check the deployment status, and explain whether retraining is necessary. Use tools for all operational claims."
+  },
+  "response": {
+    "detail": "Gemini request failed: ServerError"
+  }
+}

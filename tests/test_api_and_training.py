@@ -1,4 +1,5 @@
 import hashlib
+from types import SimpleNamespace
 
 from fastapi.testclient import TestClient
 
@@ -38,3 +39,27 @@ def test_training_provenance_reads_recorded_dvc_hash(tmp_path):
     (tmp_path / "dataset.csv.dvc").write_text("outs:\n- md5: 1234abcd\n  path: dataset.csv\n")
     assert steps.dvc_record(data)["md5"] == "1234abcd"
     assert steps.file_md5(data) == hashlib.md5(data.read_bytes()).hexdigest()  # noqa: S324
+
+
+def test_training_provenance_resolves_git_from_dataset_directory(monkeypatch, tmp_path):
+    data = tmp_path / "repo" / "data" / "dataset.csv"
+    data.parent.mkdir(parents=True)
+    calls = []
+
+    def fake_run(command, **kwargs):
+        calls.append(kwargs["cwd"])
+        stdout = {
+            "rev-parse": str(tmp_path / "repo"),
+            "log": "commit123",
+            "tag": "dataset-v1.1",
+        }[command[1]]
+        return SimpleNamespace(returncode=0, stdout=stdout)
+
+    monkeypatch.setattr(steps.subprocess, "run", fake_run)
+    monkeypatch.setattr(steps, "dvc_record", lambda _: {"md5": "1234abcd"})
+
+    result = steps.read_provenance(data)
+
+    assert result["git.commit"] == "commit123"
+    assert result["dataset.version"] == "dataset-v1.1"
+    assert calls == [data.parent, tmp_path / "repo", tmp_path / "repo"]

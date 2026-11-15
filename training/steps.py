@@ -29,10 +29,10 @@ def dvc_record(dataset_path: str | Path) -> dict[str, Any]:
     return (doc.get("outs") or [{}])[0]
 
 
-def _git(*args: str) -> str:
+def _git(*args: str, cwd: Path | None = None) -> str:
     try:
         out = subprocess.run(["git", *args], capture_output=True, text=True, timeout=15,
-                             check=False)
+                             check=False, cwd=cwd)
         return out.stdout.strip() if out.returncode == 0 else ""
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return ""
@@ -41,8 +41,13 @@ def _git(*args: str) -> str:
 def read_provenance(dataset_path: str | Path) -> dict[str, str]:
     """DVC hash + Git commit/tag recorded at training time (what the agent reads back)."""
     dvc_file = str(dataset_path) + ".dvc"
-    commit = _git("log", "-1", "--format=%H", "--", dvc_file) or os.getenv("GIT_COMMIT", "unknown")
-    tags = _git("tag", "--points-at", commit).split() if commit != "unknown" else []
+    git_cwd = Path(dataset_path).resolve().parent
+    repo_root = _git("rev-parse", "--show-toplevel", cwd=git_cwd)
+    if repo_root:
+        git_cwd = Path(repo_root)
+    commit = (_git("log", "-1", "--format=%H", "--", dvc_file, cwd=git_cwd)
+              or os.getenv("GIT_COMMIT", "unknown"))
+    tags = _git("tag", "--points-at", commit, cwd=git_cwd).split() if commit != "unknown" else []
     version = next((t for t in tags if t.startswith("dataset-")), tags[0] if tags else "untagged")
     return {"dvc.path": str(dataset_path), "dvc.md5": dvc_record(dataset_path).get("md5", "unknown"),
             "git.commit": commit, "dataset.version": version}
@@ -117,7 +122,12 @@ def evaluate_and_log(trained: dict[str, Any], run_name: str | None = None) -> di
         mlflow.set_tags({**prov, "pipeline": os.getenv("PIPELINE_NAME", "manual")})
         mlflow.log_params(trained["params"])
         mlflow.log_metrics(metrics)
-        info = mlflow.sklearn.log_model(model, name="model", registered_model_name=MODEL_NAME)
+        info = mlflow.sklearn.log_model(
+            model,
+            name="model",
+            registered_model_name=MODEL_NAME,
+            skops_trusted_types=["sklearn.tree._tree.Tree"],
+        )
     return {"run_id": run.info.run_id, "metrics": metrics,
             "model_version": getattr(info, "registered_model_version", None),
             "model_path": trained["model_path"]}

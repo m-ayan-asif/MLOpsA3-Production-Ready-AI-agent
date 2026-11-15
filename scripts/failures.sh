@@ -10,7 +10,9 @@ case "${1:-}" in
   k8s-bad-model-path)  # pods Running but NOT Ready (readiness 503) -> Service has no endpoints
     kubectl -n $NS patch configmap inference-config --type merge \
       -p '{"data":{"MODEL_PATH":"/models/missing.joblib"}}'
-    kubectl -n $NS rollout restart deployment/inference-api ;;
+    kubectl -n $NS rollout restart deployment/inference-api
+    kubectl -n $NS scale deployment/inference-api --replicas=0
+    kubectl -n $NS scale deployment/inference-api --replicas=2 ;;
   dag-corrupt-data)    # dataset no longer matches its DVC hash -> validate_dataset fails
     echo "corrupt,row" >> data/dataset.csv
     echo "Now trigger the DAG; also ask the agent whether DVC-tracked data changed." ;;
