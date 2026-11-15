@@ -9,6 +9,6 @@
 - [Earlier live-state snapshot](./live_status.json) — the latest Airflow execution is recorded separately in the pipeline conversation evidence above.
 - [Airflow corruption evidence](./failure_evidence/airflow_dvc_corruption.json) — failed DAG run, task states, and validation log.
 - [Screenshots](./screenshots/) — generated evidence summaries and authentic Airflow, MLflow, Kubernetes, DVC, and agent/API captures. The Swagger chat captures show a narrower Kubernetes/MLflow request, not the mandatory four-system scenario.
-- [Hosted GitHub Actions run](https://github.com/m-ayan-asif/MLOpsA3-Production-Ready-AI-agent/actions/runs/43696198224) — passed for the published evidence commit `d0d832b`; it runs Ruff and pytest.
+- [Hosted GitHub Actions run](https://github.com/m-ayan-asif/MLOpsA3-Production-Ready-AI-agent/actions/runs/43697872583) — passed for commit `ea06ab0`; it runs Ruff and pytest.
 
-The current agent, test, report, and conversation updates are local and have not been pushed. The hosted CI result above applies to `d0d832b`, not to those updates.
+The exact-prompt agent, test, and conversation updates were pushed in `ea06ab0`, and the hosted CI run above passed. This README/report status refresh follows that verification.
