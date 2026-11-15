@@ -93,7 +93,8 @@ def dvc_list_datasets() -> dict[str, Any]:
 @tool(
     source="dvc",
     description="Get the current version of one DVC-tracked dataset: content hash, last Git "
-                "commit that changed it and any dataset-* Git tag (the version label).",
+                "commit that changed it and any dataset-* Git tag (the version label). This is "
+                "current workspace state, not proof of which dataset trained a particular run.",
     properties={"path": {"type": "string", "description": "e.g. data/dataset.csv"}},
     required=("path",),
 )
@@ -165,9 +166,10 @@ def dvc_explain_reproduce(path: str, rev: str) -> dict[str, Any]:
 
 @tool(
     source="dvc",
-    description="Return the dataset provenance recorded on an MLflow run (DVC hash, Git commit, "
-                "dataset version). Accepts a run id, a run name or a numeric experiment id "
-                "(uses that experiment's latest run).",
+    description="Return the dataset provenance recorded for an MLflow run (DVC hash, Git commit, "
+                "dataset version). When identifying which dataset trained a selected model, use "
+                "that exact run's ID rather than the current workspace dataset. Accepts a run id, "
+                "a run name or a numeric experiment id (uses that experiment's latest run).",
     properties={"reference": {"type": "string"}},
     required=("reference",),
 )

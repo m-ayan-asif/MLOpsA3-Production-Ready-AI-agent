@@ -164,8 +164,12 @@ def k8s_find_unhealthy_pods(namespace: str | None = None) -> dict[str, Any]:
 @tool(
     source="kubernetes",
     description="Report the currently deployed application version: image tags, version label, "
-                "ConfigMap APP_VERSION/MODEL_VERSION and replica readiness.",
-    properties={"namespace": {"type": "string"}},
+                "ConfigMap APP_VERSION/MODEL_VERSION and replica readiness. If namespace is omitted, "
+                "the first configured approved namespace is used; do not assume 'default'.",
+    properties={"namespace": {
+        "type": "string",
+        "description": "Optional. Omit to use the first configured approved namespace.",
+    }},
 )
 def k8s_get_deployed_version(namespace: str | None = None) -> dict[str, Any]:
     ns, s = _ns(namespace), get_settings()

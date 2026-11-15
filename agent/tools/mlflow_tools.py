@@ -133,7 +133,8 @@ def _readiness(client, run, metric: str, ranked: list) -> list[dict[str, Any]]:
                 "ranking plus readiness checks. A top metric alone does NOT make a model "
                 "production-ready; report the checks and any failures. This project's training "
                 "pipeline logs F1 as 'f1' (not 'f1_score'); it also logs accuracy, precision, "
-                "and recall.",
+                "and recall. Provenance tags in this result are not an independent DVC lookup; "
+                "query DVC separately when asked which dataset trained the selected run.",
     properties={"metric": {"type": "string",
                            "description": "Metric name as logged; use 'f1' for F1 in this project."},
                 "mode": {"type": "string", "enum": ["max", "min"]},

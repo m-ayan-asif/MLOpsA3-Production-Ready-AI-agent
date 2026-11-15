@@ -76,7 +76,8 @@ def latest_run_summary(dag_id: str) -> dict[str, Any]:
     return {"dag_id": dag_id, "latest_run": _run_view(latest), "failed_tasks": failed}
 
 
-@tool(source="airflow", description="List Airflow DAGs and whether each is approved for triggering.")
+@tool(source="airflow", description="List Airflow DAG definitions and whether each is approved for "
+                                   "triggering. This does not report any DAG run's status.")
 def airflow_list_dags() -> dict[str, Any]:
     approved = set(get_settings().approved_dag_ids)
     dags = _api("GET", "/dags", params={"limit": 100}).get("dags", [])
@@ -101,7 +102,8 @@ def airflow_get_dag_runs(dag_id: str, limit: int = 5) -> dict[str, Any]:
 
 @tool(
     source="airflow",
-    description="Summarise the latest run of a DAG and list its failed tasks.",
+    description="Get the actual state of the latest run of a DAG and list its failed tasks. Use this "
+                "for questions about whether a recent training workflow succeeded or failed.",
     properties={"dag_id": {"type": "string"}},
     required=("dag_id",),
 )

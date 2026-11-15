@@ -35,12 +35,39 @@ def test_mandatory_scenario_uses_all_four_systems_without_triggering_retraining(
          ToolCall("airflow_trigger_dag", {"dag_id": "ml_training_pipeline"})],  # model over-reaches
         "Facts / Uncertainties / Actions",
     ])
-    result = Orchestrator(llm).run("Find the best recent model, identify its dataset, check "
-                                   "deployment, and say whether retraining is necessary.")
+    result = Orchestrator(llm).run(
+        "Find the best recent model, identify the dataset version used to train it, check the "
+        "deployment status, and explain whether retraining is necessary.")
     assert {t.source for t in result.tool_trace} >= {"mlflow", "dvc", "kubernetes", "airflow"}
     trigger = [t for t in result.tool_trace if t.tool == "airflow_trigger_dag"][0]
     assert trigger.status == "confirmation_required"
     assert api_calls == []  # no POST to Airflow: retraining was never started
+
+
+def test_mandatory_scenario_continues_when_dvc_provenance_is_missing(stub_tool):
+    stub_tool("mlflow_best_run", lambda **kw: {"best": {"run_id": "r1"}})
+    stub_tool("dvc_get_run_dataset", lambda **kw: {"dataset.version": "dataset-v1.1"})
+    stub_tool("k8s_get_deployed_version", lambda **kw: {"deployments": [{"ready": 2}]})
+    stub_tool("airflow_latest_run_summary", lambda **kw: {"latest_run": {"state": "success"}})
+    stub_tool("assess_retraining_need", lambda **kw: {"retraining_recommended": False})
+    llm = FakeLLM([
+        [ToolCall("mlflow_best_run"), ToolCall("k8s_get_deployed_version"),
+         ToolCall("airflow_latest_run_summary", {"dag_id": "ml_training_pipeline"}),
+         ToolCall("assess_retraining_need", {"run_id": "r1"})],
+        "I have enough information from MLflow tags.",
+        [ToolCall("dvc_get_run_dataset", {"reference": "r1"})],
+        "All required evidence is now available.",
+    ])
+
+    result = Orchestrator(llm).run(
+        "Find the best recent model, identify the dataset version used to train it, "
+        "check the deployment status, and explain whether retraining is necessary.")
+
+    assert result.answer == "All required evidence is now available."
+    assert [trace.tool for trace in result.tool_trace] == [
+        "mlflow_best_run", "k8s_get_deployed_version", "airflow_latest_run_summary",
+        "assess_retraining_need", "dvc_get_run_dataset",
+    ]
 
 
 def test_agent_does_not_invent_results_when_a_tool_is_down(stub_tool):

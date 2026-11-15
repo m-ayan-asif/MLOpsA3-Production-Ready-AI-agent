@@ -1,6 +1,7 @@
 """LLM abstraction. The orchestrator only sees LLMClient; Gemini is one implementation."""
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -23,6 +24,21 @@ class LLMTurn:
 
 class LLMError(RuntimeError):
     pass
+
+
+MAX_RETRIES = 2
+INITIAL_BACKOFF_SECONDS = 0.5
+
+
+def _is_transient_error(exc: Exception) -> bool:
+    status = getattr(exc, "code", None)
+    if status is None:
+        status = getattr(exc, "status", None)
+    try:
+        status = int(status)
+    except (TypeError, ValueError):
+        return False
+    return status in (408, 429) or 500 <= status < 600
 
 
 class LLMClient(Protocol):
@@ -65,11 +81,15 @@ class GeminiClient:
             tools=[types.Tool(function_declarations=declarations)],
             automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True),
         )
-        try:
-            response = self._client.models.generate_content(
-                model=self._model, contents=contents, config=config)
-        except Exception as exc:  # noqa: BLE001
-            raise LLMError(f"Gemini request failed: {type(exc).__name__}") from exc
+        for attempt in range(MAX_RETRIES + 1):
+            try:
+                response = self._client.models.generate_content(
+                    model=self._model, contents=contents, config=config)
+                break
+            except Exception as exc:  # noqa: BLE001
+                if attempt == MAX_RETRIES or not _is_transient_error(exc):
+                    raise LLMError(f"Gemini request failed: {type(exc).__name__}") from exc
+                time.sleep(INITIAL_BACKOFF_SECONDS * (2 ** attempt))
         if not response.candidates or not response.candidates[0].content:
             raise LLMError("Gemini returned no content")
         content = response.candidates[0].content

@@ -46,6 +46,28 @@ def test_reads_outside_approved_namespace_are_denied(monkeypatch):
     assert res.status == "denied"
 
 
+def test_deployed_version_uses_first_approved_namespace_when_omitted(monkeypatch):
+    seen = []
+    apps = SimpleNamespace(list_namespaced_deployment=lambda namespace, **kw: (
+        seen.append(("deployment", namespace)) or SimpleNamespace(items=[])))
+    core = SimpleNamespace(read_namespaced_config_map=lambda name, namespace, **kw: (
+        seen.append(("configmap", namespace)) or SimpleNamespace(data={})))
+    monkeypatch.setattr(k8s, "_apps", lambda: apps)
+    monkeypatch.setattr(k8s, "_core", lambda: core)
+
+    res = execute_tool("k8s_get_deployed_version", {}, request_id="k6")
+
+    assert res.status == "ok"
+    assert seen == [("deployment", "mlops-agent"), ("configmap", "mlops-agent")]
+
+
+def test_deployed_version_rejects_explicit_unapproved_default_namespace(monkeypatch):
+    monkeypatch.setattr(k8s, "_apps", lambda: (_ for _ in ()).throw(
+        AssertionError("no API call should be made")))
+    res = execute_tool("k8s_get_deployed_version", {"namespace": "default"}, request_id="k7")
+    assert res.status == "denied"
+
+
 def test_unhealthy_pod_detection_reports_reason_and_events(monkeypatch):
     def pod(name, waiting=None, ready=True, restarts=0, phase="Running"):
         state = SimpleNamespace(waiting=SimpleNamespace(reason=waiting) if waiting else None)

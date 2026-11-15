@@ -10,9 +10,9 @@
 
 I implemented and exercised an MLOps assistant that connects a Gemini-powered agent to DVC, MLflow, Airflow 3, and a Kubernetes inference deployment. I verified the application with both automated tests and live infrastructure; this was not limited to mocked integrations.
 
-The main workflow ran successfully: Airflow validated and preprocessed the data, trained and evaluated a model, logged the result and provenance to MLflow, and passed the configured quality gate. I also ran three failure-injection scenarios, observed their effects, and restored the affected services/data. The five required saved conversations now include a successful single-request scenario spanning DVC, MLflow, Kubernetes, and Airflow. I also captured one confirmation-gated agent trigger and a separate read-only follow-up that verified its final result: the DAG run and all five tasks succeeded.
+The main workflow ran successfully: Airflow validated and preprocessed the data, trained and evaluated a model, logged the result and provenance to MLflow, and passed the configured quality gate. I also ran three failure-injection scenarios, observed their effects, and restored the affected services/data. The exact mandatory assignment prompt now succeeds without naming tools in the request, and the final trace covers MLflow, DVC, Kubernetes, and Airflow. I also captured one confirmation-gated agent trigger and a separate read-only follow-up that verified its final result: the DAG run and all five tasks succeeded.
 
-The final checks recorded in this report include **37 passing tests**, a passing Ruff check, clean DVC status, healthy Airflow and MLflow endpoints, a Ready kind node, and an inference deployment with **2/2 replicas ready**. A real valid prediction returned HTTP 200; an invalid feature vector was rejected with HTTP 422.
+The final checks recorded in this report include **43 passing tests**, a passing Ruff check, clean DVC status, healthy Airflow and MLflow endpoints, a Ready kind node, and an inference deployment with **2/2 replicas ready**. A real valid prediction returned HTTP 200; an invalid feature vector was rejected with HTTP 422.
 
 There are still submission follow-ups: The configured DVC remote is local to this machine, so another clone cannot retrieve the data unless I provide a shared remote or reproduce the local setup.
 
@@ -26,7 +26,7 @@ My implementation has the following request and data flow:
 
 1. A user sends a message to the FastAPI agent.
 2. The orchestrator sends the conversation and the available tool schemas to Gemini. Automatic function execution is disabled; the application validates and executes selected tools.
-3. Tool calls pass argument/schema validation, permission checks, confirmation gates for state changes, timeouts, and structured logging.
+3. Tool calls pass argument/schema validation, permission checks, confirmation gates for state changes, timeouts, and structured logging. For the mandatory cross-system assessment, an evidence-completeness check asks Gemini to continue if required systems have not returned successful evidence; it does not execute tools itself. Gemini retries transient HTTP 408, 429, and 5xx responses at most twice with bounded backoff.
 4. The tools query DVC/Git, MLflow, Airflow's REST API, or the Kubernetes API. A deterministic policy tool checks retraining evidence.
 5. The agent returns an answer alongside a structured trace of the real tool calls and any failures.
 
@@ -71,9 +71,9 @@ This table maps my implementation and evidence to the rubric. It is not a predic
 | MLflow experiment intelligence | 15 | I implemented tools to inspect and compare runs and to report readiness evidence. The latest finished run is `9fd6a0116ada4a3aa966129b90e9eeb6`, with F1 `0.9773755656`, and its `quality_gate` tag is `passed`. | Implemented and live-verified. The top five finished runs tie on F1, so I do not claim a unique best model. |
 | Airflow DAG and workflow operations | 15 | I ran `ml_training_pipeline` through all five stages, including one agent-triggered run whose terminal success I verified, and injected a DVC-corruption failure that stopped at validation. I saved the failed-run/task-log evidence and restored the dataset. | Implemented and live-verified. |
 | Kubernetes deployment and diagnostics | 15 | I deployed the inference API with two replicas, probes, resource limits, a Service, and least-privilege agent RBAC. I verified readiness, endpoints, predictions, and injected bad-image and bad-model-path faults. | Implemented and live-verified. |
-| Multi-tool AI agent reasoning | 15 | I saved the five required successful conversations with 19 successful tool calls, including one request that used DVC, MLflow, Kubernetes, and Airflow together. Paired records also show the confirmed pipeline trigger and final status check. | Implemented and exercised. The initial Gemini 502 and a partial attempt are preserved separately rather than hidden. |
-| Testing, reliability, and safety | 10 | I ran 37 tests, Ruff, DVC status, Compose validation/build, shell syntax checks, and live endpoint checks. Mutating tools require explicit API confirmation; errors and ungrounded answers are surfaced. | Locally verified. |
-| GitHub repository and CI | 5 | I published the initial submission on `main` at `ca16246`. Hosted Actions run `43694353648` completed successfully; its `lint-and-test` job runs Ruff and pytest. This report/evidence refresh is local and has not been pushed. | Initial publication and CI verified; this follow-up revision still needs publication and CI verification. |
+| Multi-tool AI agent reasoning | 15 | I saved the five required conversations with 21 successful tool calls. The mandatory prompt is verbatim and the request itself names no tools; the trace covers MLflow, DVC, Kubernetes, and Airflow. Paired records also show the confirmed pipeline trigger and final status check. | Implemented and exercised. Earlier 502s, incomplete autonomous attempts, and the scripted prompt are preserved as attempts/backups. |
+| Testing, reliability, and safety | 10 | I ran 43 tests, Ruff, DVC status, Compose validation/build, shell syntax checks, and live endpoint checks. Mutating tools require explicit API confirmation; errors and ungrounded answers are surfaced. | Locally verified. |
+| GitHub repository and CI | 5 | The published evidence commit is `d0d832b`; hosted Actions run `43696198224` passed its `lint-and-test` job with Ruff and pytest. The current agent, test, and transcript changes are local and still need publication and hosted CI verification. | Previous publication and CI verified; current revision pending. |
 | Demonstration and architecture defense | 10 | I prepared demo scenarios, architecture documentation, conversation traces, and authentic Airflow, MLflow, Kubernetes, DVC, and agent screenshots. | Evidence prepared. I still need to perform the demonstration and defend the design orally. |
 
 ## 4. DVC integration and data provenance
@@ -145,17 +145,17 @@ I kept liveness and readiness distinct: if model loading fails, the process can 
 
 I configured the agent to use `gemini-3.1-flash-lite`. Its 28 tools cover operational reads and guarded state changes. The five required saved successful conversations cover:
 
-1. A mandatory single-request correlation of the best MLflow run, its DVC dataset provenance, Kubernetes deployment status, and the latest Airflow run, plus a retraining assessment.
+1. The mandatory assignment sentence verbatim, with no tool names in the user request. On an updated local agent instance at `127.0.0.1:8001`, Gemini selected the tools; an evidence-completeness check prompted it to continue when its first answer omitted DVC, after which Gemini selected the exact-run DVC lookup. The final trace has seven successful calls, including MLflow best-run selection, DVC provenance for that run, Kubernetes deployment status, Airflow's latest run status, and retraining assessment.
 2. Dataset provenance and reproduction.
 3. Model comparison and the readiness caveat.
 4. Deployment, pods, endpoints, and deployed version.
 5. A failed Airflow run and current DVC status.
 
-Those five saved responses total **19 successful tool calls** and contain no tool failures. Each JSON file records the request, answer, request ID, step count, tool trace, and failures. The mandatory all-four-systems request returned HTTP 200 with successful calls to MLflow, Kubernetes, Airflow, DVC, and the retraining policy tool. I preserved the initial multi-tool attempt that returned HTTP 502 (`Gemini request failed: ServerError`) and a later partial attempt with a denied Kubernetes call in `conversations/attempts/`; neither is counted as successful evidence.
+Those five saved responses total **21 successful tool calls** and contain no tool failures. Each JSON file records the request, answer, request ID, step count, tool trace, and failures. I preserved two Gemini 502 attempts, a partial attempt with a denied Kubernetes call, incomplete exact-prompt attempts, and the former tool-scripted transcript under `conversations/attempts/`; none is counted as successful evidence.
 
-The agent-triggered pipeline record contains one `/chat` request with `confirm: true`; its trace shows exactly one successful `airflow_trigger_dag` call. The agent initially reported that the run was still in progress. A separate read-only `/chat` follow-up returned HTTP 200, with no tool failures, and verified terminal success for all five tasks. These two records add five successful tool calls, bringing the seven primary conversation/evidence JSON records to **24 successful calls**.
+The agent-triggered pipeline record contains one `/chat` request with `confirm: true`; its trace shows exactly one successful `airflow_trigger_dag` call. The agent initially reported that the run was still in progress. A separate read-only `/chat` follow-up returned HTTP 200, with no tool failures, and verified terminal success for all five tasks. These two records add five successful tool calls, bringing the seven primary conversation/evidence JSON records to **26 successful calls**.
 
-The Swagger request/response screenshots show an earlier, narrower read-only request using Kubernetes and MLflow only. They are supplementary and are not the evidence for the mandatory four-system scenario; that live request and its trace are captured in conversation 01.
+The Swagger request/response screenshots show an earlier, narrower read-only request using Kubernetes and MLflow only. They are supplementary and are not the evidence for the mandatory four-system scenario; that live request and its trace are captured in [conversation 01](./conversations/01_multi_tool.json). The earlier tool-scripted prompt remains available as a [backup](./conversations/attempts/01_multi_tool_scripted_prompt_backup.json).
 
 ## 9. Testing, reliability, and safety
 
@@ -163,7 +163,7 @@ My verification included:
 
 | Check | Result |
 |---|---|
-| Full pytest suite | **37 passed** |
+| Full pytest suite | **43 passed** |
 | Ruff | Passed |
 | DVC status | Data and pipelines are up to date |
 | `docker compose config --quiet` | Passed |
@@ -175,8 +175,10 @@ My verification included:
 | Airflow monitor health | HTTP 200; metadatabase, scheduler, triggerer, and DAG processor healthy |
 | Kubernetes inference | 2/2 ready; two Service endpoints |
 | Prediction behavior | Valid input HTTP 200; invalid feature length HTTP 422 |
-| Live Gemini four-system request | HTTP 200; five successful calls spanning DVC, MLflow, Kubernetes, Airflow, and the retraining policy; no tool failures |
+| Live Gemini four-system request | Exact assignment sentence; HTTP 200; seven successful tool calls, all required evidence sources queried; no tool failures |
 | Agent-triggered Airflow execution | HTTP 200 with `confirm: true`; exactly one trigger; read-only follow-up verified the run and all five tasks succeeded |
+| Gemini transient-error handling | At most two retries for HTTP 408, 429, or 5xx responses; delay is bounded exponential backoff |
+| Mandatory assessment completeness | Incomplete first answers do not finalize; the LLM is prompted to gather missing evidence and remains responsible for selecting the tools |
 
 I designed the agent so the language model cannot authorize a state change. The API's `confirm` value is injected by the tool runtime and is not part of the LLM's tool schema. `airflow_trigger_dag`, `k8s_restart_deployment`, and `dvc_checkout_version` require explicit confirmation. Tools also validate arguments, enforce permissions and namespace restrictions, use timeouts, and produce structured traces/logs. Tool errors are surfaced to the model as unavailable evidence; the final response identifies failed calls, and an answer with no tool calls is flagged as unsupported.
 
@@ -207,11 +209,11 @@ The authentic captures are:
 - [Swagger agent request](./screenshots/chatApiRequest.png), [successful response/tool trace](./screenshots/Responses1.png), and [API response schema](./screenshots/Responses2.png)
 - [Docker Compose and Kubernetes service status](./screenshots/serviceUptimeConfirmation.png)
 
-The five required conversation records, the paired trigger/final-status records, and preserved failed/partial attempts are saved as JSON in [conversations/](./conversations/).
+The five required conversation records, the paired trigger/final-status records, and preserved failed/partial attempts are saved as JSON in [conversations/](./conversations/). The earlier scripted four-system transcript is retained as a backup; the current conversation 01 is the exact assignment prompt.
 
 ## 12. GitHub/CI status and remaining submission work
 
-I added a GitHub Actions workflow at `.github/workflows/ci.yml`. The initial submission commit `ca16246` is published on `main` and `origin/main`. Hosted Actions run `43694353648` completed successfully for that commit; its single `lint-and-test` job runs Ruff and the full pytest suite with external systems mocked. The report and evidence updates documented here are a later local revision and have not been pushed, so the green hosted run does not yet cover those updates. I have not pushed this follow-up revision.
+I added a GitHub Actions workflow at `.github/workflows/ci.yml`. The latest published evidence commit `d0d832b` is on `main` and `origin/main`; hosted Actions run `43696198224` completed successfully for that commit. Its single `lint-and-test` job runs Ruff and the full pytest suite with external systems mocked. The code, tests, report, and conversation updates documented in this revision are local and still need to be pushed and verified by hosted CI.
 
 ### Known limitations and proposed improvements
 
@@ -219,13 +221,13 @@ I added a GitHub Actions workflow at `.github/workflows/ci.yml`. The initial sub
 - I would evaluate model stability with repeated splits or cross-validation and report uncertainty before recommending promotion; equal F1 scores do not distinguish the current top runs.
 - I would add lifecycle handling/monitoring for abandoned MLflow runs so interrupted work is clearly identified and does not remain indefinitely in `RUNNING`.
 - I would keep the current mocked CI fast, and add a separate integration workflow only if a managed test environment and appropriately scoped credentials are available.
-- I observed one Gemini 502 before a successful retry. I would continue to monitor provider errors and consider bounded retry/backoff behavior for transient failures.
+- I observed Gemini 502 errors and implemented up to two retries with 0.5- and 1-second backoff for transient 408, 429, and 5xx responses. This reduces transient failures but does not guarantee provider availability.
 
 My remaining tasks are:
 
-- [x] Publish the initial project/source submission and verify hosted CI passes for `ca16246`.
+- [x] Publish the earlier project/evidence revision and verify hosted CI passes for `d0d832b`.
 - [ ] Decide whether the local DVC remote is sufficient for marking/demo; if others must reproduce from GitHub, configure a shared DVC remote.
-- [ ] Publish this follow-up report/evidence revision and verify CI on the resulting commit.
+- [ ] Publish this agent, test, report, and evidence revision and verify CI on the resulting commit.
 - [ ] Perform the live demonstration and personally defend the architecture, tool safety, readiness/liveness, provenance, and model-selection caveat.
 
 ## 13. Reproduction and verification commands

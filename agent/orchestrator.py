@@ -32,9 +32,33 @@ quality gate, or degradation results the user supplied. Use assess_retraining_ne
    **Known facts** (each tied to the tool that produced it)
    **Uncertainties** (unavailable tools, missing data, assumptions)
    **Recommended actions** (what a human should do next; actions are never taken automatically).
+8. For a request about the best recent model, its dataset version, deployment status and retraining \
+need, gather evidence from MLflow, DVC, Kubernetes and Airflow. Retrieve DVC provenance tied to the \
+selected MLflow run; current workspace dataset state is not a substitute. Check the actual state of \
+the latest relevant Airflow training run; listing DAG definitions is not a status check. If any of \
+these results is missing, continue gathering evidence before answering. MLflow's DVC tags alone do \
+not count as a DVC lookup. This assessment is read-only.
 Be concise."""
 
 MAX_STEPS = 8
+_MANDATORY_ASSESSMENT = (
+    "best recent model", "dataset version", "deployment status", "retraining",
+)
+_MANDATORY_EVIDENCE = (
+    ("mlflow_best_run", "a best-run evaluation from MLflow"),
+    ("dvc_get_run_dataset", "DVC provenance for the selected run"),
+    ("k8s_get_deployed_version", "Kubernetes deployment status"),
+    ("airflow_latest_run_summary", "the latest Airflow training-run status"),
+    ("assess_retraining_need", "a retraining evidence assessment"),
+)
+
+
+def _missing_mandatory_evidence(message: str, results: list[ToolResult]) -> list[str]:
+    normalized = " ".join(message.casefold().split())
+    if not all(marker in normalized for marker in _MANDATORY_ASSESSMENT):
+        return []
+    successful = {result.tool for result in results if result.ok}
+    return [label for tool, label in _MANDATORY_EVIDENCE if tool not in successful]
 
 
 class Orchestrator:
@@ -57,6 +81,20 @@ class Orchestrator:
             turn = self.llm.generate(SYSTEM_PROMPT, messages, specs)
             messages.append({"role": "model", "text": turn.text, "raw": turn.raw})
             if not turn.tool_calls:
+                missing = _missing_mandatory_evidence(message, results)
+                if missing and step < self.max_steps:
+                    messages.append({
+                        "role": "user",
+                        "text": "Your assessment is incomplete. Before giving a final answer, "
+                                "obtain successful evidence for: " + "; ".join(missing)
+                                + ". Use the available tools and do not substitute metadata "
+                                "or current workspace state for the requested evidence.",
+                    })
+                    continue
+                if missing:
+                    final = "I could not complete this assessment because I did not obtain: " \
+                            + "; ".join(missing) + "."
+                    break
                 final = turn.text or ""
                 break
             batch: list[tuple[str, dict[str, Any]]] = []
