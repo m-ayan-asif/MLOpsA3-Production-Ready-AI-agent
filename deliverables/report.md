@@ -10,7 +10,7 @@
 
 I implemented and exercised an MLOps assistant that connects a Gemini-powered agent to DVC, MLflow, Airflow 3, and a Kubernetes inference deployment. I verified the application with both automated tests and live infrastructure; this was not limited to mocked integrations.
 
-The main workflow ran successfully: Airflow validated and preprocessed the data, trained and evaluated a model, logged the result and provenance to MLflow, and passed the configured quality gate. I also ran three failure-injection scenarios, observed their effects, and restored the affected services/data. The agent completed five saved conversations and a later live multi-tool request. Each saved conversation returned HTTP 200 and includes its tool trace.
+The main workflow ran successfully: Airflow validated and preprocessed the data, trained and evaluated a model, logged the result and provenance to MLflow, and passed the configured quality gate. I also ran three failure-injection scenarios, observed their effects, and restored the affected services/data. The five required saved conversations now include a successful single-request scenario spanning DVC, MLflow, Kubernetes, and Airflow. I also captured one confirmation-gated agent trigger and a separate read-only follow-up that verified its final result: the DAG run and all five tasks succeeded.
 
 The final checks recorded in this report include **37 passing tests**, a passing Ruff check, clean DVC status, healthy Airflow and MLflow endpoints, a Ready kind node, and an inference deployment with **2/2 replicas ready**. A real valid prediction returned HTTP 200; an invalid feature vector was rejected with HTTP 422.
 
@@ -55,7 +55,7 @@ README.md
 architecture.md
 ```
 
-I also include `docker/`, `scripts/`, and `deliverables/` as supporting directories. The report, failure investigations, five conversation JSON files, raw failure evidence, and generated visual summaries remain organized under [deliverables/](./README.md). Authentic screenshots are in the recommended repository-root `screenshots/` directory and also retained under `deliverables/screenshots/`. The root README links to both indexes.
+I also include `docker/`, `scripts/`, and `deliverables/` as supporting directories. The report, failure investigations, five required conversation JSON files, paired pipeline-execution records, raw failure evidence, and generated visual summaries remain organized under [deliverables/](./README.md). Authentic screenshots are in the recommended repository-root `screenshots/` directory and also retained under `deliverables/screenshots/`. The root README links to both indexes.
 
 The PDF's `assignment-03-mlops-agent/` label is the suggested repository-root name; my local workspace remains `A3/A3`. I can use the suggested name for the GitHub repository without renaming the local working directory.
 
@@ -68,12 +68,12 @@ This table maps my implementation and evidence to the rubric. It is not a predic
 | Rubric component | Marks | My implementation and evidence | Status |
 |---|---:|---|---|
 | DVC integration and data provenance | 15 | I versioned dataset releases `dataset-v1.0` and `dataset-v1.1`; verified reproduction and clean DVC status; and recorded the dataset version, DVC hash, and Git commit on MLflow runs. | Implemented and live-verified. Shared remote remains a portability limitation. |
-| MLflow experiment intelligence | 15 | I implemented tools to inspect and compare runs and to report readiness evidence. The latest finished run is `19ccbffb3516412eb4d3a615c36e84b3`, with F1 `0.9773755656`, and its `quality_gate` tag is `passed`. | Implemented and live-verified. The top five finished runs tie on F1, so I do not claim a unique best model. |
-| Airflow DAG and workflow operations | 15 | I ran `ml_training_pipeline` through all five stages and injected a DVC-corruption failure that stopped at validation. I saved the failed-run/task-log evidence and restored the dataset. | Implemented and live-verified. |
+| MLflow experiment intelligence | 15 | I implemented tools to inspect and compare runs and to report readiness evidence. The latest finished run is `9fd6a0116ada4a3aa966129b90e9eeb6`, with F1 `0.9773755656`, and its `quality_gate` tag is `passed`. | Implemented and live-verified. The top five finished runs tie on F1, so I do not claim a unique best model. |
+| Airflow DAG and workflow operations | 15 | I ran `ml_training_pipeline` through all five stages, including one agent-triggered run whose terminal success I verified, and injected a DVC-corruption failure that stopped at validation. I saved the failed-run/task-log evidence and restored the dataset. | Implemented and live-verified. |
 | Kubernetes deployment and diagnostics | 15 | I deployed the inference API with two replicas, probes, resource limits, a Service, and least-privilege agent RBAC. I verified readiness, endpoints, predictions, and injected bad-image and bad-model-path faults. | Implemented and live-verified. |
-| Multi-tool AI agent reasoning | 15 | I saved five successful conversations containing 16 successful tool calls and their traces. I also made a later live read-only Gemini request that used Kubernetes and MLflow tools successfully. | Implemented and exercised. One initial Gemini 502 is preserved rather than hidden. |
+| Multi-tool AI agent reasoning | 15 | I saved the five required successful conversations with 19 successful tool calls, including one request that used DVC, MLflow, Kubernetes, and Airflow together. Paired records also show the confirmed pipeline trigger and final status check. | Implemented and exercised. The initial Gemini 502 and a partial attempt are preserved separately rather than hidden. |
 | Testing, reliability, and safety | 10 | I ran 37 tests, Ruff, DVC status, Compose validation/build, shell syntax checks, and live endpoint checks. Mutating tools require explicit API confirmation; errors and ungrounded answers are surfaced. | Locally verified. |
-| GitHub repository and CI | 5 | I added `.github/workflows/ci.yml` for Ruff and pytest; local checks pass. I configured an `origin` URL, but it has no published branch yet and hosted CI has not run. | **Outstanding:** publish the branch and verify hosted CI. |
+| GitHub repository and CI | 5 | I published the initial submission on `main` at `ca16246`. Hosted Actions run `43694353648` completed successfully; its `lint-and-test` job runs Ruff and pytest. This report/evidence refresh is local and has not been pushed. | Initial publication and CI verified; this follow-up revision still needs publication and CI verification. |
 | Demonstration and architecture defense | 10 | I prepared demo scenarios, architecture documentation, conversation traces, and authentic Airflow, MLflow, Kubernetes, DVC, and agent screenshots. | Evidence prepared. I still need to perform the demonstration and defend the design orally. |
 
 ## 4. DVC integration and data provenance
@@ -86,17 +86,17 @@ For each training run, my pipeline records:
 - `dvc.md5`, read from the DVC output record; and
 - `git.commit`, identifying the repository revision used for training.
 
-The latest finished run records dataset version `dataset-v1.1`, DVC MD5 `fca8d29f55d3bb4293b10d4935173c34`, and Git commit `45fc14b6a8593fff6405a69410819aa8bfd4d22d`. I use these tags to answer which dataset a particular run used, rather than inferring it from the current workspace.
+The latest finished run, `9fd6a0116ada4a3aa966129b90e9eeb6`, records dataset version `dataset-v1.1`, DVC MD5 `fca8d29f55d3bb4293b10d4935173c34`, and Git commit `45fc14b6a8593fff6405a69410819aa8bfd4d22d`. I use these tags to answer which dataset a particular run used, rather than inferring it from the current workspace.
 
 **Portability limitation:** the configured DVC remote is `C:\Development\University Coding\MLOps\Assignments\A3\mlops-dvc-remote`, a local path outside the project directory. It works in this environment, but a person cloning the GitHub repository elsewhere will not automatically have this remote or its cached objects. Before relying on external reproduction, I should configure a shared remote or document and provide a reproducible bootstrap process.
 
 ## 5. MLflow experiment intelligence and model interpretation
 
-The training pipeline logs metrics, parameters, the model artifact, a quality-gate result, and dataset provenance to the `mlops-agent-demo` experiment. The latest finished run is:
+The training pipeline logs metrics, parameters, the model artifact, a quality-gate result, and dataset provenance to the `mlops-agent-demo` experiment. After the final live training run, the latest finished run is:
 
 | Field | Value |
 |---|---|
-| Run ID | `19ccbffb3516412eb4d3a615c36e84b3` |
+| Run ID | `9fd6a0116ada4a3aa966129b90e9eeb6` |
 | Status | `FINISHED` |
 | F1 | `0.9773755656108597` |
 | Accuracy | `0.9712643678160919` |
@@ -121,7 +121,7 @@ My Airflow DAG is named `ml_training_pipeline` and has five sequential stages:
 4. `evaluate_and_log`
 5. `quality_gate`
 
-The latest recorded successful run is `manual__2026-11-14T17:34:10.580449+00:00_tnyYmmFk`. All five task instances completed successfully, and evaluation was logged to MLflow with provenance. The quality gate checks the configured F1 threshold and marks a candidate; it is not evidence that the candidate is statistically better.
+The latest recorded successful run is `manual__2026-11-15T08:41:53.114323+00:00_a6PEpZ92`. I triggered it once through `/chat` with `confirm: true`; the final read-only status check verified that `validate_dataset`, `preprocess`, `train_model`, `evaluate_and_log`, and `quality_gate` all succeeded. The result is preserved in [the trigger record](./conversations/06_pipeline_execution.json) and [the final-status record](./conversations/06_pipeline_execution_result.json). Its MLflow run is `9fd6a0116ada4a3aa966129b90e9eeb6`. The quality gate checks the configured F1 threshold and marks a candidate; it is not evidence that the candidate is statistically better.
 
 I also verified failure behavior: dataset validation and quality-gate failures stop downstream promotion, while retryable task errors use the configured retries. The historical DVC-corruption failure and its task log are preserved in [airflow_dvc_corruption.json](./failure_evidence/airflow_dvc_corruption.json).
 
@@ -143,17 +143,19 @@ I kept liveness and readiness distinct: if model loading fails, the process can 
 
 ## 8. Multi-tool agent reasoning
 
-I configured the agent to use `gemini-3.1-flash-lite`. Its 28 tools cover operational reads and guarded state changes. The five saved successful conversations cover:
+I configured the agent to use `gemini-3.1-flash-lite`. Its 28 tools cover operational reads and guarded state changes. The five required saved successful conversations cover:
 
-1. Multi-tool MLflow and Kubernetes status.
+1. A mandatory single-request correlation of the best MLflow run, its DVC dataset provenance, Kubernetes deployment status, and the latest Airflow run, plus a retraining assessment.
 2. Dataset provenance and reproduction.
 3. Model comparison and the readiness caveat.
 4. Deployment, pods, endpoints, and deployed version.
 5. A failed Airflow run and current DVC status.
 
-Those saved responses total **16 successful tool calls** and contain no tool failures. Each JSON file records the request, answer, request ID, step count, tool trace, and failures. I preserved the first multi-tool attempt separately because it returned HTTP 502 (`Gemini request failed: ServerError`); the retry succeeded. This records one observed transient provider error, not evidence that Gemini is currently unavailable.
+Those five saved responses total **19 successful tool calls** and contain no tool failures. Each JSON file records the request, answer, request ID, step count, tool trace, and failures. The mandatory all-four-systems request returned HTTP 200 with successful calls to MLflow, Kubernetes, Airflow, DVC, and the retraining policy tool. I preserved the initial multi-tool attempt that returned HTTP 502 (`Gemini request failed: ServerError`) and a later partial attempt with a denied Kubernetes call in `conversations/attempts/`; neither is counted as successful evidence.
 
-On 15 November I also made a live, read-only `/chat` request asking for Kubernetes workload readiness and the latest MLflow run. Gemini returned HTTP 200 after two successful tool calls (`k8s_list_workloads` and `mlflow_list_runs`) with no tool failures. I took a screenshot of the Swagger request and response.
+The agent-triggered pipeline record contains one `/chat` request with `confirm: true`; its trace shows exactly one successful `airflow_trigger_dag` call. The agent initially reported that the run was still in progress. A separate read-only `/chat` follow-up returned HTTP 200, with no tool failures, and verified terminal success for all five tasks. These two records add five successful tool calls, bringing the seven primary conversation/evidence JSON records to **24 successful calls**.
+
+The Swagger request/response screenshots show an earlier, narrower read-only request using Kubernetes and MLflow only. They are supplementary and are not the evidence for the mandatory four-system scenario; that live request and its trace are captured in conversation 01.
 
 ## 9. Testing, reliability, and safety
 
@@ -173,7 +175,8 @@ My verification included:
 | Airflow monitor health | HTTP 200; metadatabase, scheduler, triggerer, and DAG processor healthy |
 | Kubernetes inference | 2/2 ready; two Service endpoints |
 | Prediction behavior | Valid input HTTP 200; invalid feature length HTTP 422 |
-| Live Gemini multi-tool request | HTTP 200; two successful tools; no tool failures |
+| Live Gemini four-system request | HTTP 200; five successful calls spanning DVC, MLflow, Kubernetes, Airflow, and the retraining policy; no tool failures |
+| Agent-triggered Airflow execution | HTTP 200 with `confirm: true`; exactly one trigger; read-only follow-up verified the run and all five tasks succeeded |
 
 I designed the agent so the language model cannot authorize a state change. The API's `confirm` value is injected by the tool runtime and is not part of the LLM's tool schema. `airflow_trigger_dag`, `k8s_restart_deployment`, and `dvc_checkout_version` require explicit confirmation. Tools also validate arguments, enforce permissions and namespace restrictions, use timeouts, and produce structured traces/logs. Tool errors are surfaced to the model as unavailable evidence; the final response identifies failed calls, and an answer with no tool calls is flagged as unsupported.
 
@@ -204,11 +207,11 @@ The authentic captures are:
 - [Swagger agent request](./screenshots/chatApiRequest.png), [successful response/tool trace](./screenshots/Responses1.png), and [API response schema](./screenshots/Responses2.png)
 - [Docker Compose and Kubernetes service status](./screenshots/serviceUptimeConfirmation.png)
 
-The five full conversation records and the initial Gemini error attempt are also saved as JSON in [conversations/](./conversations/).
+The five required conversation records, the paired trigger/final-status records, and preserved failed/partial attempts are saved as JSON in [conversations/](./conversations/).
 
 ## 12. GitHub/CI status and remaining submission work
 
-I added a GitHub Actions workflow at `.github/workflows/ci.yml`. It installs the development dependencies, runs Ruff, and runs pytest with external systems mocked. Those checks pass locally. I have configured `origin`, but the remote currently has no branch refs (`git ls-remote --heads origin` returned no output), the local `main` branch has no upstream tracking branch, and I have not verified a hosted workflow run. I will inspect the remote before the first push and will not force-push.
+I added a GitHub Actions workflow at `.github/workflows/ci.yml`. The initial submission commit `ca16246` is published on `main` and `origin/main`. Hosted Actions run `43694353648` completed successfully for that commit; its single `lint-and-test` job runs Ruff and the full pytest suite with external systems mocked. The report and evidence updates documented here are a later local revision and have not been pushed, so the green hosted run does not yet cover those updates. I have not pushed this follow-up revision.
 
 ### Known limitations and proposed improvements
 
@@ -220,10 +223,10 @@ I added a GitHub Actions workflow at `.github/workflows/ci.yml`. It installs the
 
 My remaining tasks are:
 
-- [ ] Publish the project and deliverables to the configured GitHub remote, then verify hosted CI passes.
+- [x] Publish the initial project/source submission and verify hosted CI passes for `ca16246`.
 - [ ] Decide whether the local DVC remote is sufficient for marking/demo; if others must reproduce from GitHub, configure a shared DVC remote.
+- [ ] Publish this follow-up report/evidence revision and verify CI on the resulting commit.
 - [ ] Perform the live demonstration and personally defend the architecture, tool safety, readiness/liveness, provenance, and model-selection caveat.
-- [ ] Review and commit the existing source changes and `dvc.lock` as appropriate for the repository/submission.
 
 ## 13. Reproduction and verification commands
 

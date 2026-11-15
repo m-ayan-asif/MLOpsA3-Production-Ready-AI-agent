@@ -1,0 +1,15 @@
+{
+  "scenario": "mandatory_multi_tool_all_four_systems",
+  "captured_at": "2026-11-15T08:38:32.115328+00:00",
+  "model": "gemini-3.1-flash-lite",
+  "endpoint": "POST http://127.0.0.1:8000/chat",
+  "http_status": 502,
+  "duration_seconds": 13.709,
+  "request": {
+    "message": "Find the best recent model, identify the dataset version used to train it, check the deployment status, and explain whether retraining is necessary. Use read-only tools to query MLflow for the best recent finished run, DVC for the dataset provenance of that exact run, Kubernetes for the inference deployment and service health, and Airflow for the latest ml_training_pipeline run. Correlate all four systems. Do not trigger or change anything. Present known facts, uncertainties, and recommended actions.",
+    "confirm": false
+  },
+  "response": {
+    "detail": "Gemini request failed: ServerError"
+  }
+}
